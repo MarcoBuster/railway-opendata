@@ -32,7 +32,7 @@ class ViaggiaTrenoAPI:
             parameters (tuple[str]): a list of parameters
 
         Raises:
-            BadRequestException: if the request returns a non-200 status code
+            BadRequestException: if the response is not ok
 
         Returns:
             str: the raw response from the API
@@ -41,10 +41,29 @@ class ViaggiaTrenoAPI:
             f"{ViaggiaTrenoAPI.BASE_URL}{method}/{'/'.join(parameters)}"
         )
 
-        if response.status_code != 200:
+        if response.status_code != 200 or "Error" in response.text:
             raise BadRequestException(
                 status_code=response.status_code,
                 response=response.text,
             )
 
         return response.text
+
+    @staticmethod
+    def station_region_code(station_code: str) -> int:
+        """Retrieves the region code of a given station (by its code).
+
+        Args:
+            station_code (str): the code of the station to check
+
+        Raises:
+            BadRequestException: if the response is not ok
+
+        Returns:
+            int: the region code of the given station
+        """
+        region_code = ViaggiaTrenoAPI._raw_request("regione", station_code)
+        try:
+            return int(region_code)
+        except ValueError:
+            raise BadRequestException
