@@ -19,9 +19,6 @@ class BadRequestException(Exception):
 class ViaggiaTrenoAPI:
     BASE_URL: str = "http://www.viaggiatreno.it/infomobilita/resteasy/viaggiatreno/"
 
-    def __init__(self) -> None:
-        pass
-
     @staticmethod
     def _raw_request(method: str, *parameters: str) -> str:
         """Perform a HTTP request to ViaggiaTreno API and return a raw string,
@@ -63,7 +60,4 @@ class ViaggiaTrenoAPI:
             int: the region code of the given station
         """
         region_code = ViaggiaTrenoAPI._raw_request("regione", station_code)
-        try:
-            return int(region_code)
-        except ValueError:
-            raise BadRequestException
+        return int(region_code)
