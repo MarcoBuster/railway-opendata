@@ -1,0 +1,23 @@
+default:
+  image: python:3.11
+
+before_script:
+  - pip install -r requirements.txt
+  - pip install -r requirements-test.txt
+  - pip install black
+
+stages:
+  - test
+  - lint
+
+pytest:
+  stage: test
+  script:
+    - pytest src/
+  when: always
+
+black-linter:
+  stage: lint 
+  script:
+    - black --check src/
+  when: always
