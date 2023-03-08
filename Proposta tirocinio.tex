@@ -1,0 +1,130 @@
+\documentclass[italian,11pt,a4paper,final]{article}
+\usepackage[a4paper,
+bindingoffset=0.2in,
+left=1in,
+right=1in,
+top=1in,
+bottom=1in,
+footskip=.25in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{babel}
+\date{2 marzo 2023}
+
+\newcommand{\hochkomma}{$^{,\,}$}
+
+\author{Marco Aceti}
+\title{
+	Open Data e trasporto ferroviario \\
+	\textit{\small{Proposta di tirocinio interno}}
+}
+
+\begin{document}
+	\maketitle
+	
+	\begin{abstract}
+		In Italia non esistono Open Data sulle performance del trasporto pubblico ferroviario: le metriche definite nei contratti di servizio tra gli enti locali committenti e le imprese ferroviarie sono insufficienti e spesso inaccessibili.
+		La proposta di tirocinio si articola sull'idea di preservare i dati istantanei della circolazione ferroviaria dalla piattaforma ViaggiaTreno per produrre Open Data storici, \textit{machine-readable} e di qualità.
+		Infine, si propone un'analisi dei dati raccolti a fini statistici e di verifica.
+	\end{abstract}
+
+	\section{Stato dell'arte}
+	In Italia, il servizio di trasporto pubblico è operato da aziende\footnote{\url{https://it.wikipedia.org/wiki/Aziende_di_trasporto_pubblico_italiane}} private o partecipate. 
+	Sul territorio nazionale sono autorizzate\footnote{\url{https://www.mit.gov.it/documentazione/elenco-imprese-ferroviarie-titolari-di-licenza-1}} una ventina di \textit{Imprese Ferroviarie} (IF) adibite al trasporto passeggeri aventi in essere numerosi \textit{Contratti di Servizio} (CdS) con gli enti locali (tipicamente le Regioni).
+	La qualità del servizio è misurata da \textbf{metriche di performance} stabilite nei CdS e comunicate agli enti dalle IF.
+	
+	\subsection{Esempio: il servizio ferroviario lombardo}
+	In Lombardia, Trenord S.r.l.\ definisce\footnote{\url{https://www.regione.lombardia.it/wps/wcm/connect/7144d5b9-7e3c-4e44-82ad-30a1652e2642/Contratto+Trenord+con+firme.pdf} -- Allegato 11} un \textit{indice di puntualità entro i 5 minuti} che considera il \textit{``numero di corse circolanti giunte puntuali o con ritardo fino a 5 minuti''}, ma esclude i \textit{``ritardi maturati per cause esterne''} o \textit{``per lavori''}. 
+	La Regione pubblica mensilmente un rapporto sulla puntualità dei treni\footnote{\url{https://www.regione.lombardia.it/wps/wcm/connect/4eae62eb-dfcf-4446-82ea-72dbfdfb2c4a/Puntualit\%C3\%A0.pdf}} in formato PDF, ma con diverse criticità:
+	\begin{itemize}
+		\item vengono considerati solo i ritardi in arrivo alla destinazione finale, escludendo quindi le stazioni intermedie;
+		\item i dati forniti non sono granulari ma \textit{brutalmente} aggregati per mese;
+		\item sono escluse le \textit{cause esterne} e le \textit{circostanze occasionali}: gli indici di puntualità effettivi non sono pubblicati;
+		\item i rapporti non rispettano neanche una \textit{stella} dei livelli definiti da Tim Berners-Lee per valutare gli Open Data: non è nemmeno presente una licenza d'uso.
+	\end{itemize}
+	
+	C'è da considerare inoltre che Trenord (società tra l'altro partecipata al 50\% da Regione Lombardia stessa) comunica al committente gli indici già calcolati, senza che quest'ultimo abbia modo di verificarli.
+	
+	Infine, non tutti gli enti committenti pubblicano rapporti sulla qualità del servizio: per esempio, la Regione Campania prevede nel suo CdS\footnote{
+		\url{https://www.regione.campania.it/assets/documents/contratto-di-servizio-tpl-ferro.pdf} \\
+		sez.\ \textit{``Penali e forme di mitigazione delle stesse''} -- Allegato 7
+	} con Trenitalia S.p.A.\ la fornitura di indici simili per il calcolo di penali e mitigazioni,
+	ma non è reperibile nessun documento che li attesti. \\
+	
+	\subsection{Open Data storici}
+	In conclusione, non esistono attualmente Open Data {storici}, completi, strutturati e \textit{machine-readable} sul servizio di trasporto ferroviario in Italia.
+	Gli indici di puntualità (e affidabilità) definiti nei CdS possono essere utili agli enti committenti per calcolare penali o comparare offerte di mercato, ma i Cittadini Digitali meritano una \textbf{maggiore trasparenza} per poter verificare autonomamente lo stato reale del \textit{Sistema Ferrovia}.
+	
+	\section{Rilevazioni istantanee}
+	Nella sezione precedente si è discusso di \textbf{dati storici}; la situazione è molto più rosea per i \textbf{dati in tempo reale}.
+	Esistono innumerevoli siti web e applicazioni, ufficiali e non, che mostrano lo stato attuale di un treno in viaggio. 
+	L'app \textit{Orario Treni}\footnote{\url{https://www.orariotreniapp.it/}} di Paolo Conte, per esempio, presenta con un'interfaccia molto semplice e intuitiva la possibilità di cercare treni per itinerario e numero, visualizzare arrivi e partenze di una stazione e consultare l'\textit{andamento istantaneo} di un treno.
+	Quest'ultimo è composto da informazioni come gli orari programmati ed \textit{effettivi} di partenza e arrivo ad ogni fermata intermedia, ritardo cumulato fino a quel momento e luogo di ultimo rilevamento (non necessariamente corrispondente ad una fermata). \\
+	
+	L'idea fondante della proposta in oggetto è sfruttare la ghiotta quantità di dati offerta dalle rilevazioni istantanee nel corso del tempo per produrre Open Data storici.
+	
+	\subsection{ViaggiaTreno}
+	Il Gruppo Ferrovie dello Stato Italiane (\textit{holding} di diverse società\footnote{\url{https://it.wikipedia.org/wiki/Ferrovie_dello_Stato_Italiane}} come Trenitalia, RFI, ANAS, ...) permette ai viaggiatori di trovare soluzioni di viaggio e visualizzare l'andamento di una corsa tramite la piattaforma web ViaggiaTreno\footnote{\url{http://www.viaggiatreno.it/infomobilita/index.jsp}}, similmente all'app \textit{Orario Treni}.
+	Si può infatti speculare che quest'ultima utilizzi proprio ViaggiaTreno come fonte dei dati.
+	
+	\subsubsection{API}
+	Il \textit{motore} dell'interfaccia web di ViaggiaTreno è un insieme di API ``REST'' non ufficialmente documentate e di scarsa qualità\footnote{\url{https://medium.com/@albigiu/trenitalia-shock-non-crederete-mai-a-queste-api-painful-14433096502c}}.
+	In rete sono presenti diversi tentativi di documentazione, mantenuti dalla community open source\footnote{\url{https://github.com/sabas/trenitalia}}\hochkomma\footnote{\url{https://github.com/roughconsensusandrunningcode/TrainMonitor/wiki/API-del-sistema-Viaggiatreno}}\hochkomma\footnote{\url{https://github.com/Razorphyn/Informazioni-Treni-Italiani}}.
+	
+	\subsubsection{Copyright e licenza d'uso}
+	Le \textit{note legali} riportate sul portale ViaggiaTreno sono abbastanza aggressive.
+	\begin{quote}
+	\textit{I contenuti, la grafica e le immagini sono soggetti a Copyright. \textbf{Ogni diritto sui contenuti} (a titolo esemplificativo e non esaustivo: l’architettura del servizio, i testi, le immagini grafiche e fotografiche, ecc.) \textbf{è riservato ai sensi della normativa vigente}. I contenuti di ViaggiaTreno non possono, neppure in parte, essere copiati, riprodotti, trasferiti, caricati, pubblicati o distribuiti in qualsiasi modo senza il preventivo consenso scritto della società Trenitalia S.p.A.. È possibile scaricare i contenuti nel proprio computer e/o stampare estratti \textbf{unicamente per utilizzo personale} di carattere informativo. \textbf{Qualsiasi forma di link al sito www.ViaggiaTreno.it deve essere preventivamente autorizzata}\footnote{L'autore di questo documento si dichiara reo del \textit{reato di linking non autorizzato}} e non deve recare danno all'immagine e alle attività di Trenitalia S.p.A.. è vietato il c.d.\ deep linking ossia l'utilizzo, su siti di soggetti terzi, di parti del Servizio Internet o, comunque, il collegamento diretto alle pagine senza passare per la home page del Servizio Internet. \textbf{L'eventuale inosservanza delle presenti disposizioni}, salvo esplicita autorizzazione scritta, \textbf{sarà perseguita} nelle competenti sedi giudiziarie civili e penali.}
+	\end{quote}
+	Il Gruppo Ferrovie dello Stato Italiane vieta formalmente ai soggetti non autorizzati l'utilizzo di ViaggiaTreno per fini diversi dal mero uso personale, riservando tutti i diritti sui contenuti.
+	Nel 2019, l'applicazione Trenìt!\ è stata costretta\footnote{\url{https://www.startmag.it/smartcity/perche-trenitalia-ha-tamponato-lapp-trenit-per-il-momento/}} a interrompere il servizio in seguito a un processo giudiziario iniziato da Trenitalia, che contestava il riutilizzo dei dati sulla circolazione ferroviaria presenti su  ViaggiaTreno.
+	Il giudice nella sua sentenza\footnote{\url{https://www.startmag.it/innovazione/trenit-trenitalia/}} ha invece stabilito che \textit{``la banca dati degli orari dei treni e i prezzi di questi, non è protetta da diritto d’autore''} e quindi Trenìt!\ li può utilizzare. \\
+	
+	Ritengo quindi che non ci siano reali limiti legali nell'utilizzo della piattaforma ViaggiaTreno e in particolare delle sue API per i fini della proposta in oggetto.
+	
+	\subsection{Avvisi Trenord sulla circolazione}
+	
+	Trenord, oltre alla tracciabilità dei suoi treni in ViaggiaTreno, offre anche un servizio di avviso delle criticità di tutte le linee (simile all'InfoMobilità di Trenitalia).
+	Gli avvisi sono rilasciati da esseri umani, ma hanno un formato simile. Di seguito ne sono riportati alcuni della linea \textit{Verona-Brescia-Milano}\footnote{\url{https://www.trenord.it/linee-e-orari/circolazione/le-nostre-linee/brescia-treviglio-milano/?code=R4}}.
+	
+	\begin{quote}
+		\textbf{Criticità} --- 01/03/2023 06:24
+		
+		\texttt{Aggiornamento:
+		Il treno 10913 (MILANO GRECO PIRELLI 05:52 - BRESCIA 07:12) sta viaggiando con un ritardo di 30 minuti perché è stato necessario prolungare i controlli tecnici che precedono la partenza del treno.}
+	\end{quote}
+	
+	\begin{quote}
+		\textbf{Criticità} --- 01/03/2023 10:07\nopagebreak
+		
+		\texttt{Il treno 2624 (VERONA PORTA NUOVA 09:43 - MILANO CENTRALE 11:35) viaggia con 12 minuti di ritardo in seguito alla sosta prolungata di un altro treno della linea.}
+	\end{quote}
+	
+	\section{Proposta operativa}
+	La proposta si articola in tre fasi.
+	
+	\subsection{Indagine esplorativa}
+	Come concordato a voce nello scorso colloquio, in questa fase potrei indagare più a fondo sullo stato degli Open Data nel trasporto ferroviario in Italia e negli altri Paesi europei.
+	Progetti simili potrebbero influenzare positivamente scelte come la granularità e il formato dei dati.
+	
+	\subsection{Raccolta e produzione degli Open Data}
+	Lo scopo di questa fase è progettare e implementare uno strumento che raccoglie i dati in tempo reale dal portale ViaggiaTreno di \textbf{tutti i treni} in circolazione e li salva in un database.
+	Quindi, creare successivamente un altro strumento che li esporta in un formato concordato. 
+	
+	Per quanto riguarda gli avvisi di Trenord, un semplice script che li scarica dal sito web dovrebbe essere sufficiente. \\
+	
+	Al fine di avere dati significati nella fase successiva, è importante iniziare il prima possibile l'attività di raccolta dati.
+	
+	\subsection{Analisi dei dati raccolti}
+	Innanzitutto, è necessario definire opportunamente i concetti di \textit{tratta} e \textit{corsa}: considerando che i numeri identificativi dei treni mutano da un giorno all'altro e non sono univoci, non è un compito banale.
+	Quindi, si possono ricalcolare gli indici di puntualità e affidabilità \textit{effettivi} per ogni tratta individuata e trovare correlazioni tra le performance del servizio e giorno della settimana, orario, condizioni meteo, ecc\ldots
+	
+	Si potrebbe anche verificare la regolarità e correttezza degli avvisi ai passeggeri nelle tratte affidate a Trenord e analizzare le cause dichiarate più comuni. \\
+	
+	\section{Sviluppi futuri}
+	
+	Nonostante ritenga l'attività di analisi dei dati estremamente interessante, l'obiettivo principale della proposta in oggetto è fornire strumenti liberi e Open Data di qualità per permettere a chiunque dotato delle capacità necessarie di continuare il lavoro. 
+	Con il supporto del Dipartimento di Informatica si potrebbe rendere l'attività di raccolta dati permanente e costante fornendo \textit{dump} regolari accessibili da un portale web, anche di semplice costruzione.
+	
+\end{document}
