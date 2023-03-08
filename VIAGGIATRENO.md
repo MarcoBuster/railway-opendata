@@ -25,3 +25,34 @@ Nella repo sono presenti degli script per dumpare le stazioni;
             - Secondo la struttura delle API di ViaggiaTreno, un treno potrebbe arrivare in una stazione da un binario e partire da un altro.
             Ritengo ragionevole assumere che i binari di arrivo e partenza di un treno dalla stessa fermata siano sempre gli stessi.
     - La _prima_ e l'_ultima_ fermata sono fermate particolari denominate _origine_ e _destinazione_ e hanno rispettivamente orari di arrivi e partenza nulli.
+- In questo documento, tutti i __timestamp__ sono intesi a precisione di millisecondi (multipli di 1000). 
+
+# Metodi
+
+> __Endpoint base__: `http://www.viaggiatreno.it/infomobilita/resteasy/viaggiatreno/<metodo>/[parametro1]/.../[parametroN]`
+
+## `cercaNumeroTrenoTrenoAutocomplete`
+
+> `ENDPOINT /cercaNumeroTrenoTrenoAutocomplete/<numeroTreno>`
+
+Il metodo serve per disambugare treni con lo stesso numero ma aventi origini differenti.
+
+### Parametri
+- `numeroTreno`: il numero di treno richiesto;
+
+### Risposta
+
+Formato proprietario.
+
+```
+numeroTreno - nomeStazioneOrigine1 | numeroTreno-codiceStazioneOrigine1-timestampMezzanotteOggi
+...
+numeroTreno - nomeStazioneOrigineN | numeroTreno-codiceStazioneOrigineN-timestampMezzanotteOggi
+```
+
+### Esempio
+> [/cercaNumeroTrenoTrenoAutocomplete/2107](http://www.viaggiatreno.it/infomobilita/resteasy/viaggiatreno/cercaNumeroTrenoTrenoAutocomplete/2107)
+> ```
+> 2107 - TORINO PORTA NUOVA|2107-S00219-1678230000000
+> 2107 - MILANO NORD CADORNA|2107-N00001-1678230000000
+> ```
