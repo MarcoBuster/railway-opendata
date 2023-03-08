@@ -118,7 +118,7 @@ Trova il codice della regione di appartenenza di una stazione.
 Utile per i metodi successivi.
 
 ### Parametri 
-- `IDStazione`: l'ID in formato inalterato.
+- `IDStazione`: l'ID della stazione in formato inalterato.
 
 ### Risposta
 Codice della regione di appartenenza della stazione.
@@ -213,8 +213,164 @@ Alcuni tentativi di documentazione dei campi (da _trial-and-error_):
 
 ### Esempio
 
-> [elencoStazioni/1](http://www.viaggiatreno.it/infomobilita/resteasy/viaggiatreno/elencoStazioni/1) (Lombardia)
+> [/elencoStazioni/1](http://www.viaggiatreno.it/infomobilita/resteasy/viaggiatreno/elencoStazioni/1) (Lombardia)
 > ```
 > (omissis)
 > ```
+
+## `/partenze/<IDStazione>/<orarioAttuale>`
+
+Ritorna l'elenco dei treni in partenza nella stazione e nell'orario dato.
+
+### Parametri
+
+- `IDStazione`: l'ID della stazione in formato inalterato;
+- `orarioAttuale`: l'orario di riferimento. 
+Orari diversi da quello attuale possono portare a risultati parziali o errori.
+Per questo campo, il __formato è tremendo e demenziale__ per un API:
+```
+%a %b %d %Y %H:%M:%S %Z%z
+```
+
+### Risposta
+
+Un array JSON.
+
+```json
+[
+  {
+    "numeroTreno": 9584,
+    "categoria": "",
+    "categoriaDescrizione": " FR",
+    "origine": null,
+    "codOrigine": "S11781",
+    "destinazione": "TORINO P.NUOVA",
+    "codDestinazione": null,
+    "origineEstera": null,
+    "destinazioneEstera": null,
+    "oraPartenzaEstera": null,
+    "oraArrivoEstera": null,
+    "tratta": 0,
+    "regione": 0,
+    "origineZero": null,
+    "destinazioneZero": null,
+    "orarioPartenzaZero": null,
+    "orarioArrivoZero": null,
+    "circolante": true,
+    "codiceCliente": 1,
+    "binarioEffettivoArrivoCodice": null,
+    "binarioEffettivoArrivoDescrizione": null,
+    "binarioEffettivoArrivoTipo": null,
+    "binarioProgrammatoArrivoCodice": null,
+    "binarioProgrammatoArrivoDescrizione": null,
+    "binarioEffettivoPartenzaCodice": null,
+    "binarioEffettivoPartenzaDescrizione": null,
+    "binarioEffettivoPartenzaTipo": null,
+    "binarioProgrammatoPartenzaCodice": null,
+    "binarioProgrammatoPartenzaDescrizione": "12",
+    "subTitle": null,
+    "esisteCorsaZero": null,
+    "orientamento": "B",
+    "inStazione": false,
+    "haCambiNumero": false,
+    "nonPartito": false,
+    "provvedimento": 0,
+    "riprogrammazione": "N",
+    "orarioPartenza": 1678291320000,
+    "orarioArrivo": null,
+    "stazionePartenza": null,
+    "stazioneArrivo": null,
+    "statoTreno": null,
+    "corrispondenze": null,
+    "servizi": null,
+    "ritardo": 23,
+    "tipoProdotto": "100",
+    "compOrarioPartenzaZeroEffettivo": "17:02",
+    "compOrarioArrivoZeroEffettivo": null,
+    "compOrarioPartenzaZero": "17:02",
+    "compOrarioArrivoZero": null,
+    "compOrarioArrivo": null,
+    "compOrarioPartenza": "17:02",
+    "compNumeroTreno": " FR 9584",
+    "compOrientamento": [
+      "Executive in testa",
+      "Executive in the head",
+      "Executive Zugspitze",
+      "Executive en t&ecirc;te",
+      "Executive al inicio del tren",
+      "Executive la &icirc;nceputul trenului",
+      "頭の中でExecutive",
+      "Executive在前几节车厢",
+      "Executive в головной части поезда"
+    ],
+    "compTipologiaTreno": "nazionale",
+    "compClassRitardoTxt": "ritardo01_txt",
+    "compClassRitardoLine": "ritardo01_line",
+    "compImgRitardo2": "/vt_static/img/legenda/icone_legenda/ritardo01.png",
+    "compImgRitardo": "/vt_static/img/legenda/icone_legenda/ritardo01.png",
+    "compRitardo": [
+      "ritardo 23 min.",
+      "delay 23 min.",
+      "Versp&#228;tung 23 Min.",
+      "retard de 23 min.",
+      "retraso de 23 min.",
+      "&icirc;nt&acirc;rziere 23 min.",
+      "遅延 23 分",
+      "误点 23分钟",
+      "опоздание на 23 минут"
+    ],
+    "compRitardoAndamento": [
+      "con un ritardo di 23 min.",
+      "23 minutes late",
+      "mit einer Verz&#246;gerung von 23 Min.",
+      "avec un retard de 23 min.",
+      "con un retraso de 23 min.",
+      "cu o &icirc;nt&acirc;rziere de 23 min.",
+      "23 分の遅延",
+      "误点 23分钟",
+      "с опозданием в 23 минут"
+    ],
+    "compInStazionePartenza": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "compInStazioneArrivo": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "compOrarioEffettivoArrivo": null,
+    "compDurata": "",
+    "compImgCambiNumerazione": "&nbsp;&nbsp;",
+    "materiale_label": null,
+    "dataPartenzaTreno": 1678230000000
+  },
+]
+```
+
+TODO documentazione.
+
+### Esempio
+
+> [/partenze/S01700/Wed Mar 08 2023 17:04:00 GMT+0100](http://www.viaggiatreno.it/infomobilita/resteasy/viaggiatreno/elencoStazioni/1)
+> ```
+> (omissis)
+> ```
+
+## `/arrivi/<IDStazione>/<orarioAttuale>`
+
+Identico a `/partenze`.
 
