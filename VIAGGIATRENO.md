@@ -54,3 +54,51 @@ numeroTreno - nomeStazioneOrigineN|numeroTreno-codiceStazioneOrigineN-timestampM
 > 2107 - TORINO PORTA NUOVA|2107-S00219-1678230000000
 > 2107 - MILANO NORD CADORNA|2107-N00001-1678230000000
 > ```
+
+## `/cercaStazione/<stringa>`
+
+Controintuitivamente, il metodo ritorna non una bensì tutte le stazioni cui nome inizia con `stringa`. 
+
+### Parametri
+- `stringa`: query di ricerca &mdash; __può essere lunga anche un solo carattere__;
+
+### Risposta
+
+Formato JSON.
+
+```json
+[
+  {
+    "nomeLungo": "MILANO CENTRALE", // nome lungo
+    "nomeBreve": "Milano Centrale", // nome breve?
+    "label": "Milano",              // può essere nullo, indica la città?
+    "id": "S01700"                  // ID stazione
+  },
+  // ...
+]
+```
+
+### Esempio
+> [/cercaStazione/MILANO P](http://www.viaggiatreno.it/infomobilita/resteasy/viaggiatreno/cercaStazione/MILANO%20P)
+> ```json
+> [
+>  {
+>    "nomeLungo": "MILANO PORTA GARIBALDI",
+>    "nomeBreve": "MI P. Garibaldi",
+>    "label": null,
+>    "id": "S01645"
+>  },
+>  {
+>    "nomeLungo": "MILANO PORTA ROMANA",
+>    "nomeBreve": "MI P.ta Romana",
+>    "label": null,
+>    "id": "S01632"
+>  },
+>  {
+>    "nomeLungo": "MILANO PORTA VITTORIA",
+>    "nomeBreve": "MI P.ta Vittoria",
+>    "label": null,
+>    "id": "S01633"
+>  }
+>]
+> ```
