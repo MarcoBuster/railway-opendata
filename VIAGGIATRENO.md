@@ -36,7 +36,7 @@ Nella repo sono presenti degli script per dumpare le stazioni;
 Il metodo serve per disambugare treni con lo stesso numero ma aventi origini differenti.
 
 ### Parametri
-- `numeroTreno`: il numero di treno richiesto;
+- `numeroTreno`: il numero di treno richiesto.
 
 ### Risposta
 
@@ -60,7 +60,7 @@ numeroTreno - nomeStazioneOrigineN|numeroTreno-codiceStazioneOrigineN-timestampM
 Controintuitivamente, il metodo ritorna non una bensì tutte le stazioni cui nome inizia con `stringa`. 
 
 ### Parametri
-- `stringa`: query di ricerca &mdash; __può essere lunga anche un solo carattere__;
+- `stringa`: query di ricerca &mdash; __può essere lunga anche un solo carattere__.
 
 ### Risposta
 
@@ -118,7 +118,7 @@ Trova il codice della regione di appartenenza di una stazione.
 Utile per i metodi successivi.
 
 ### Parametri 
-- `IDStazione`: l'ID in formato inalterato
+- `IDStazione`: l'ID in formato inalterato.
 
 ### Risposta
 Codice della regione di appartenenza della stazione.
@@ -133,5 +133,88 @@ Una lista esaustiva dei codici è reperibile nella [repo di Razorphyn](https://g
 > [/regione/S01700](http://www.viaggiatreno.it/infomobilita/resteasy/viaggiatreno/regione/S01700)
 > ```
 > 1
+> ```
+
+## `/elencoStazioni/<codiceRegione>`
+
+### Parametri
+- `codiceRegione`: fare riferimento a [repo di Razorphyn](https://github.com/Razorphyn/Informazioni-Treni-Italiani/blob/master/ID_REGIONI.csv). \
+Il codice `0` sembra ritornare le stazioni principali italiane.
+
+### Risposta
+
+Formato JSON.
+
+```json
+[
+ {
+    "codReg": 3,    // codice regione nella richiesta ?
+    "tipoStazione": 3,
+    "dettZoomStaz": [
+      {
+        "codiceStazione": "S01013",
+        "zoomStartRange": 8,
+        "zoomStopRange": 9,
+        "pinpointVisibile": true,
+        "pinpointVisible": true,
+        "labelVisibile": true,
+        "labelVisible": true,
+        "codiceRegione": null
+      },
+      {
+        "codiceStazione": "S01013",
+        "zoomStartRange": 10,
+        "zoomStopRange": 11,
+        "pinpointVisibile": true,
+        "pinpointVisible": true,
+        "labelVisibile": true,
+        "labelVisible": true,
+        "codiceRegione": null
+      }
+    ],
+    "pstaz": [],
+    "mappaCitta": {
+      "urlImagePinpoint": "",
+      "urlImageBaloon": ""
+    },
+    "codiceStazione": "S01013",
+    "codStazione": "S01013",
+    "lat": 45.943821,   // latitudine
+    "lon": 8.47224,     // longitudine
+    "latMappaCitta": 0,
+    "lonMappaCitta": 0,
+    "localita": {
+      "nomeLungo": "VERBANIA-PALLANZA",
+      "nomeBreve": "Verbania",
+      "label": "Verbania-Pallanza",
+      "id": "S01013"
+    },
+    "esterno": false,
+    "offsetX": -4,
+    "offsetY": 10,
+    "nomeCitta": "Verbania"
+  },
+  // ...
+]
+```
+
+Alcuni tentativi di documentazione dei campi (da _trial-and-error_):
+- `tipoStazione`: 
+    - `3`: regolare;
+    - `1`: con alta velocità;
+    - `4`: placeholder, da ignorare.
+- `localita` contiene le stesse info del JSON restituito da `cercaStazione`;
+- l'intuito porta a pensare che `codiceStazione`, `codStazione` e `localita.id` siano sempre uguali: non sono stati ancora trovati controesempi.
+
+### Caveats
+
+- `nomeCitta` può essere nullo o `"A"` (stesso significato);
+- a differenza del metodo `cercaStazione`, tutte le stazioni sembrano essere presenti.
+
+### Esempio
+
+> [elencoStazioni/1](http://www.viaggiatreno.it/infomobilita/resteasy/viaggiatreno/elencoStazioni/1) (Lombardia)
+> ```
+> (omissis)
 > ```
 
