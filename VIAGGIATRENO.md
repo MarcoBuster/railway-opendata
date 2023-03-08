@@ -78,6 +78,11 @@ Formato JSON.
 ]
 ```
 
+### Caveats
+
+- Il metodo __non restituisce tutte le stazioni__. \
+Per esempio, la [stazione di Arcene](https://it.wikipedia.org/wiki/Stazione_di_Arcene) (ID S01608) non è mai ritornata dalla ricerca (nemmeno dal sito web ufficiale): il suo ID è reperibile solo visualizzando le fermate di un treno in corsa.
+
 ### Esempio
 > [/cercaStazione/MILANO P](http://www.viaggiatreno.it/infomobilita/resteasy/viaggiatreno/cercaStazione/MILANO%20P)
 > ```json
@@ -102,3 +107,31 @@ Formato JSON.
 >  }
 >]
 > ```
+
+Ulteriori caveats:
+- assenza della stazione di _Milano Porta Romana_, chiamata nel loro database solo con _Milano Romana_; 
+- inconsistenza dei _nomi brevi_ rispetto ai _nomi lunghi_ (per indicare _porta_, talvolta P. altre volte P.ta).
+
+## `/regione/<IDStazione>`
+
+Trova il codice della regione di appartenenza di una stazione.
+Utile per i metodi successivi.
+
+### Parametri 
+- `IDStazione`: l'ID in formato inalterato
+
+### Risposta
+Codice della regione di appartenenza della stazione.
+
+Una lista esaustiva dei codici è reperibile nella [repo di Razorphyn](https://github.com/Razorphyn/Informazioni-Treni-Italiani/blob/master/ID_REGIONI.csv).
+
+### Caveats
+- Il server imposta l'header `Content-Type` a `application/json`, ma il risultato non è JSON;
+- I codici 21 e 22 fanno entrambi riferimento al Trentino-Alto Adige.
+
+### Esempio
+> [/regione/S01700](http://www.viaggiatreno.it/infomobilita/resteasy/viaggiatreno/regione/S01700)
+> ```
+> 1
+> ```
+
