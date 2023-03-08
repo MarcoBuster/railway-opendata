@@ -16,6 +16,8 @@ Questa fase è divisa in sotto fasi.
 
 ### 2.1 Scraping grezzo
 
+[Documentazione API Viaggiatreno](./VIAGGIATRENO.md).
+
 In questa fase l'obiettivo è archiviare le risposte grezze dell'API di ViaggiaTreno sui treni in circolazione per poter essere elaborate nella fase successiva.
 Quali dati salvare?
 
