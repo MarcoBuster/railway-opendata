@@ -31,9 +31,7 @@ Nella repo sono presenti degli script per dumpare le stazioni;
 
 > __Endpoint base__: `http://www.viaggiatreno.it/infomobilita/resteasy/viaggiatreno/<metodo>/[parametro1]/.../[parametroN]`
 
-## `cercaNumeroTrenoTrenoAutocomplete`
-
-> `ENDPOINT /cercaNumeroTrenoTrenoAutocomplete/<numeroTreno>`
+## `/cercaNumeroTrenoTrenoAutocomplete/<numeroTreno>`
 
 Il metodo serve per disambugare treni con lo stesso numero ma aventi origini differenti.
 
@@ -45,9 +43,9 @@ Il metodo serve per disambugare treni con lo stesso numero ma aventi origini dif
 Formato proprietario.
 
 ```
-numeroTreno - nomeStazioneOrigine1 | numeroTreno-codiceStazioneOrigine1-timestampMezzanotteOggi
+numeroTreno - nomeStazioneOrigine1|numeroTreno-codiceStazioneOrigine1-timestampMezzanotteOggi
 ...
-numeroTreno - nomeStazioneOrigineN | numeroTreno-codiceStazioneOrigineN-timestampMezzanotteOggi
+numeroTreno - nomeStazioneOrigineN|numeroTreno-codiceStazioneOrigineN-timestampMezzanotteOggi
 ```
 
 ### Esempio
