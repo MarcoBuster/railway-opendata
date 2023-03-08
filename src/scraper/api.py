@@ -43,7 +43,7 @@ class ViaggiaTrenoAPI:
 
         if response.status_code != 200:
             raise BadRequestException(
-                status_code=response.status_code, 
+                status_code=response.status_code,
                 response=response.text,
             )
 
