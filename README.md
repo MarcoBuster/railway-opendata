@@ -5,7 +5,7 @@
 
 # Organizzazione del lavoro
 
-Nella sezione 3 del file [Proposta tirocinio](./Proposta%20tirocinio.pdf) ho descritto a grandi linee tre fasi (non necessariamente da eseguire in ordine).
+Nella sezione 3 del file [Proposta tirocinio](./docs/Proposta%20tirocinio.pdf) ho descritto a grandi linee tre fasi (non necessariamente da eseguire in ordine).
 
 ## 1. Indagine esplorativa
 TODO - sopratutto per concordare formati.
@@ -16,7 +16,7 @@ Questa fase è divisa in sotto fasi.
 
 ### 2.1 Scraping grezzo
 
-[Documentazione API Viaggiatreno](./VIAGGIATRENO.md).
+[Documentazione API Viaggiatreno](./docs/VIAGGIATRENO.md).
 
 In questa fase l'obiettivo è archiviare le risposte grezze dell'API di ViaggiaTreno sui treni in circolazione per poter essere elaborate nella fase successiva.
 Quali dati salvare?
