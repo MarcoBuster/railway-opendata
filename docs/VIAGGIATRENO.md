@@ -8,11 +8,11 @@
 - [GitHub roughconsensusandrunningcode/TrainMonitor (wiki)](https://github.com/roughconsensusandrunningcode/TrainMonitor/wiki/API-del-sistema-Viaggiatreno): è documentata bene la risposta di alcuni metodi, in particolare __`andamentoTreno`__.
 Nella repo sono presenti degli script per dumpare le stazioni;
 
-## Definizioni e caveats 
+## Definizioni e caveats
 
 - Una __stazione__ è un _luogo di sosta temporanea_ per i convogli ferroviari.
-- Un __treno__ è la corsa di un _convoglio ferroviario_ in una giornata. 
-    - È __identificato univocamente__ dalla tripla $(\text{Data}, \, \text{StazioneDiPartenza}, \, \text{NumeroDiTreno})$. 
+- Un __treno__ è la corsa di un _convoglio ferroviario_ in una giornata.
+    - È __identificato univocamente__ dalla tripla $(\text{Data}, \, \text{StazioneDiPartenza}, \, \text{NumeroDiTreno})$.
     In nessun caso il $\text{NumeroDiTreno}$ può essere utilizzato come identificatore univoco.
 - Una __fermata__ è una stazione in cui un treno, oltre che a transitare, _sosta_.
     - Un treno sosta in __almeno due__ fermate.
@@ -25,7 +25,7 @@ Nella repo sono presenti degli script per dumpare le stazioni;
             - Secondo la struttura delle API di ViaggiaTreno, un treno potrebbe arrivare in una stazione da un binario e partire da un altro.
             Ritengo ragionevole assumere che i binari di arrivo e partenza di un treno dalla stessa fermata siano sempre gli stessi.
     - La _prima_ e l'_ultima_ fermata sono fermate particolari denominate _origine_ e _destinazione_ e hanno rispettivamente orari di arrivi e partenza nulli.
-- In questo documento, tutti i __timestamp__ sono intesi a precisione di millisecondi (multipli di 1000). 
+- In questo documento, tutti i __timestamp__ sono intesi a precisione di millisecondi (multipli di 1000).
 
 # Metodi
 
@@ -57,7 +57,7 @@ numeroTreno - nomeStazioneOrigineN|numeroTreno-codiceStazioneOrigineN-timestampM
 
 ## `/cercaStazione/<stringa>`
 
-Controintuitivamente, il metodo ritorna non una bensì tutte le stazioni cui nome inizia con `stringa`. 
+Controintuitivamente, il metodo ritorna non una bensì tutte le stazioni cui nome inizia con `stringa`.
 
 ### Parametri
 - `stringa`: query di ricerca &mdash; __può essere lunga anche un solo carattere__.
@@ -109,7 +109,7 @@ Per esempio, la [stazione di Arcene](https://it.wikipedia.org/wiki/Stazione_di_A
 > ```
 
 Ulteriori caveats:
-- assenza della stazione di _Milano Porta Romana_, chiamata nel loro database solo con _Milano Romana_; 
+- assenza della stazione di _Milano Porta Romana_, chiamata nel loro database solo con _Milano Romana_;
 - inconsistenza dei _nomi brevi_ rispetto ai _nomi lunghi_ (per indicare _porta_, talvolta P. altre volte P.ta).
 
 ## `/regione/<IDStazione>`
@@ -117,7 +117,7 @@ Ulteriori caveats:
 Trova il codice della regione di appartenenza di una stazione.
 Utile per i metodi successivi.
 
-### Parametri 
+### Parametri
 - `IDStazione`: l'ID della stazione in formato inalterato.
 
 ### Risposta
@@ -199,7 +199,7 @@ Formato JSON.
 ```
 
 Alcuni tentativi di documentazione dei campi (da _trial-and-error_):
-- `tipoStazione`: 
+- `tipoStazione`:
     - `3`: regolare;
     - `1`: con alta velocità;
     - `4`: placeholder, da ignorare.
@@ -225,7 +225,7 @@ Ritorna l'elenco dei treni in partenza nella stazione e nell'orario dato.
 ### Parametri
 
 - `IDStazione`: l'ID della stazione in formato inalterato;
-- `orarioAttuale`: l'orario di riferimento. 
+- `orarioAttuale`: l'orario di riferimento.
 Orari diversi da quello attuale possono portare a risultati parziali o errori.
 Per questo campo, il __formato è tremendo e demenziale__ per un API:
 ```
@@ -373,4 +373,3 @@ TODO documentazione.
 ## `/arrivi/<IDStazione>/<orarioAttuale>`
 
 Identico a `/partenze`.
-
