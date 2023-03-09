@@ -1,5 +1,8 @@
+import typing as t
+
 import pytest
-from src.scraper import ViaggiaTrenoAPI, BadRequestException
+
+from src.scraper import BadRequestException, Station, ViaggiaTrenoAPI
 
 
 def test_bad_request():
@@ -31,3 +34,11 @@ def test_station_region_code(station_code, region_code):
 def test_station_region_code_invalid():
     with pytest.raises(BadRequestException):
         ViaggiaTrenoAPI.station_region_code("S00000")
+
+
+@pytest.mark.parametrize("region_code", range(0, 22 + 1))
+def test_list_stations(region_code):
+    response: t.List[Station] = ViaggiaTrenoAPI.list_stations(region_code)
+    for station in response:
+        assert type(station) == Station
+        assert station._raw["codReg"] == region_code

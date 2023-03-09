@@ -1,4 +1,10 @@
+import json
+import typing as t
+
 import requests
+
+from src import types
+from src.scraper import Station
 
 
 class BadRequestException(Exception):
@@ -35,7 +41,8 @@ class ViaggiaTrenoAPI:
             str: the raw response from the API
         """
         response: requests.Response = requests.get(
-            f"{ViaggiaTrenoAPI.BASE_URL}{method}/{'/'.join(parameters)}"
+            f"{ViaggiaTrenoAPI.BASE_URL}{method}/"
+            f"{'/'.join(map(lambda p: str(p), parameters))}"
         )
 
         if response.status_code != 200 or "Error" in response.text:
@@ -47,8 +54,20 @@ class ViaggiaTrenoAPI:
         return response.text
 
     @staticmethod
+    def _decode_json(string: str) -> types.JSONType:
+        """Decode a JSON string.
+
+        Args:
+            string (str): the string to decode
+
+        Returns:
+            types.JSONType: the decoded JSON value
+        """
+        return json.loads(string)
+
+    @staticmethod
     def station_region_code(station_code: str) -> int:
-        """Retrieves the region code of a given station (by its code).
+        """Retrieve the region code of a given station (by its code).
 
         Args:
             station_code (str): the code of the station to check
@@ -61,3 +80,17 @@ class ViaggiaTrenoAPI:
         """
         region_code = ViaggiaTrenoAPI._raw_request("regione", station_code)
         return int(region_code)
+
+    @staticmethod
+    def list_stations(region_code: int) -> t.List[Station]:
+        """Retrieve the list of train stations of a given region.
+
+        Args:
+            region_code (int): the code of the region to query
+
+        Returns:
+            t.List[Station]: a list of train stations
+        """
+        raw_stations: str = ViaggiaTrenoAPI._raw_request("elencoStazioni", region_code)
+        stations: types.JSONType = ViaggiaTrenoAPI._decode_json(raw_stations)
+        return map(lambda s: Station(s), list(stations))
