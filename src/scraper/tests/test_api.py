@@ -42,3 +42,4 @@ def test_list_stations(region_code):
     for station in response:
         assert type(station) == Station
         assert station._raw["codReg"] == region_code
+        assert station._raw["tipoStazione"] != 4

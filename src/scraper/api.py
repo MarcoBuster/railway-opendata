@@ -26,7 +26,7 @@ class ViaggiaTrenoAPI:
     BASE_URL: str = "http://www.viaggiatreno.it/infomobilita/resteasy/viaggiatreno/"
 
     @staticmethod
-    def _raw_request(method: str, *parameters: str) -> str:
+    def _raw_request(method: str, *parameters: t.Any) -> str:
         """Perform a HTTP request to ViaggiaTreno API and return a raw string,
         if the request has been successful.
 
@@ -93,4 +93,10 @@ class ViaggiaTrenoAPI:
         """
         raw_stations: str = ViaggiaTrenoAPI._raw_request("elencoStazioni", region_code)
         stations: types.JSONType = ViaggiaTrenoAPI._decode_json(raw_stations)
-        return map(lambda s: Station(s), list(stations))
+        return list(
+            filter(
+                # stations with tipoStazione == 4 are just placeholders
+                lambda s: s._raw["tipoStazione"] != 4,
+                map(lambda s: Station(s), list(stations)),
+            )
+        )

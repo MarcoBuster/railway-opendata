@@ -1,0 +1,49 @@
+{
+  "codReg": 1,
+  "tipoStazione": 1,
+  "dettZoomStaz": [
+    {
+      "codiceStazione": "S01700",
+      "zoomStartRange": 8,
+      "zoomStopRange": 9,
+      "pinpointVisibile": true,
+      "pinpointVisible": true,
+      "labelVisibile": true,
+      "labelVisible": true,
+      "codiceRegione": null
+    },
+    {
+      "codiceStazione": "S01700",
+      "zoomStartRange": 10,
+      "zoomStopRange": 11,
+      "pinpointVisibile": true,
+      "pinpointVisible": true,
+      "labelVisibile": true,
+      "labelVisible": true,
+      "codiceRegione": null
+    }
+  ],
+  "pstaz": [
+
+  ],
+  "mappaCitta": {
+    "urlImagePinpoint": "",
+    "urlImageBaloon": ""
+  },
+  "codiceStazione": "S01700",
+  "codStazione": "S01700",
+  "lat": 45.486347,
+  "lon": 9.204528,
+  "latMappaCitta": 0,
+  "lonMappaCitta": 0,
+  "localita": {
+    "nomeLungo": "MILANO CENTRALE",
+    "nomeBreve": "Milano Centrale",
+    "label": "Milano",
+    "id": "S01700"
+  },
+  "esterno": false,
+  "offsetX": 0,
+  "offsetY": 0,
+  "nomeCitta": "Milano"
+}

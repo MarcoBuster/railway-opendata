@@ -128,6 +128,8 @@ Una lista esaustiva dei codici è reperibile nella [repo di Razorphyn](https://g
 ### Caveats
 - Il server imposta l'header `Content-Type` a `application/json`, ma il risultato non è JSON;
 - I codici 21 e 22 fanno entrambi riferimento al Trentino-Alto Adige.
+- Per alcuni stazioni (come AIELLO, S08550) la richiesta ritorna HTTP 204.
+In tal caso, non c'è modo di reperire dettagli ulteriori della stazione.
 
 ### Esempio
 > [/regione/S01700](http://www.viaggiatreno.it/infomobilita/resteasy/viaggiatreno/regione/S01700)
@@ -201,7 +203,7 @@ Formato JSON.
 Alcuni tentativi di documentazione dei campi (da _trial-and-error_):
 - `tipoStazione`:
     - `3`: regolare;
-    - `1`: con alta velocità;
+    - `1`: stazione principale (?);
     - `4`: placeholder, da ignorare.
 - `localita` contiene le stesse info del JSON restituito da `cercaStazione`;
 - l'intuito porta a pensare che `codiceStazione`, `codStazione` e `localita.id` siano sempre uguali: non sono stati ancora trovati controesempi.
@@ -209,7 +211,8 @@ Alcuni tentativi di documentazione dei campi (da _trial-and-error_):
 ### Caveats
 
 - `nomeCitta` può essere nullo o `"A"` (stesso significato);
-- a differenza del metodo `cercaStazione`, tutte le stazioni sembrano essere presenti.
+- rispetto al metodo `cercaStazione` __più stazioni__ sono presenti, ma comunque __non tutte__.
+In particolare, le stazioni senza informazioni aggiuntive (come AIELLO, S08550) non sono visualizzate _in toto_.
 
 ### Esempio
 

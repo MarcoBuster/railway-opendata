@@ -1,0 +1,26 @@
+{
+  "codReg": 1,
+  "tipoStazione": 3,
+  "dettZoomStaz": [],
+  "pstaz": [],
+  "mappaCitta": {
+    "urlImagePinpoint": "",
+    "urlImageBaloon": ""
+  },
+  "codiceStazione": "S01608",
+  "codStazione": "S01608",
+  "lat": 45.577162,
+  "lon": 9.606652,
+  "latMappaCitta": 0,
+  "lonMappaCitta": 0,
+  "localita": {
+    "nomeLungo": "ARCENE",
+    "nomeBreve": "Arcene",
+    "label": "",
+    "id": "S01608"
+  },
+  "esterno": false,
+  "offsetX": 0,
+  "offsetY": 0,
+  "nomeCitta": "A"
+}
