@@ -69,5 +69,10 @@ def test_station_departures_or_arrivals(kind: str, station_code: str):
 
 
 def test_train_details():
-    response: Train = ViaggiaTrenoAPI.train_details("S01700", 2434)
-    print(response.__dict__)
+    departing_trains: t.List[Train] = ViaggiaTrenoAPI.station_departures("S01700")
+    for raw_train in departing_trains:
+        train: Train = ViaggiaTrenoAPI.train_details(
+            raw_train._raw["codOrigine"], raw_train._raw["numeroTreno"]
+        )
+        assert type(train) == Train
+        assert train._raw["numeroTreno"] == raw_train._raw["numeroTreno"]
