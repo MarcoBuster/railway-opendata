@@ -66,3 +66,8 @@ def test_station_departures_or_arrivals(kind: str, station_code: str):
         assert type(train) == Train
         assert train._raw["numeroTreno"] is not None
         assert train._raw["codOrigine"] is not None
+
+
+def test_train_details():
+    response: Train = ViaggiaTrenoAPI.train_details("S01700", 2434)
+    print(response.__dict__)

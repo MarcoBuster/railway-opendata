@@ -126,7 +126,7 @@ class ViaggiaTrenoAPI:
 
     @staticmethod
     def _station_departures_or_arrivals(kind: str, station_code: str) -> t.List[Train]:
-        """Helper function to .station_departures and .station_arrivals methods
+        """Helper function to .station_departures and .station_arrivals methods.
 
         Args:
             kind (str): either 'partenze' (departures) or 'arrivi' (arrivals)
@@ -144,7 +144,7 @@ class ViaggiaTrenoAPI:
 
     @staticmethod
     def station_departures(station_code: str) -> t.List[Train]:
-        """Retrieve the departures of a train station
+        """Retrieve the departures of a train station.
 
         Args:
             station_code (str): the code of the considered station
@@ -156,7 +156,7 @@ class ViaggiaTrenoAPI:
 
     @staticmethod
     def station_arrivals(station_code: str) -> t.List[Train]:
-        """Retrieve the arrivals of a train station
+        """Retrieve the arrivals of a train station.
 
         Args:
             station_code (str): the code of the considered station
@@ -165,3 +165,33 @@ class ViaggiaTrenoAPI:
             t.List[Train]: a list of trains departing from the station
         """
         return ViaggiaTrenoAPI._station_departures_or_arrivals("arrivi", station_code)
+
+    @staticmethod
+    def train_details(departing_station_code: str, train_number: int) -> Train:
+        """Retreive the details of a train.
+
+        Args:
+            departing_station_code (str): the code of the departure station of the train
+            train_number (int): the train number to check
+
+        Returns:
+            Train: the details of the train
+
+        Notes:
+            A train number alone DOES NOT uniquely identify a train.
+        """
+
+        # Calculate midnight of today
+        now: datetime = datetime.now()
+        midnight: datetime = datetime(
+            year=now.year, month=now.month, day=now.day, hour=0, minute=0, second=0
+        )
+
+        raw_details: str = ViaggiaTrenoAPI._raw_request(
+            "andamentoTreno",
+            departing_station_code,
+            train_number,
+            int(midnight.timestamp() * 1000),
+        )
+        train_details: types.JSONType = ViaggiaTrenoAPI._decode_json(raw_details)
+        return Train(train_details)

@@ -376,3 +376,48 @@ TODO documentazione.
 ## `/arrivi/<IDStazione>/<orarioAttuale>`
 
 Identico a `/partenze`.
+
+## `/andamentoTreno/<IDStazioneOrigine>/<numeroTreno>/<orarioMezzanotte>`
+
+### Parametri
+
+- `IDStazioneOrigine`: ID della stazione cui il treno ha origine;
+- `numeroTreno`;
+- `orarioMezzanotte`: l'orario della mezzanotte del giorno in cui si fa la richiesta.
+
+### Risposta
+
+Nella [repo di roughconsensusandrunningcode](https://github.com/roughconsensusandrunningcode/TrainMonitor/wiki/API-del-sistema-Viaggiatreno/) sono indicate alcuni campi.
+
+* *idOrigine* e *idDestinazione*: codici delle stazioni di partenza e destinazione
+* *origine* e *destinazione*: nomi delle stazioni di partenza e destinazione
+* *orarioPartenza* e *orarioArrivo*: orari programmati di partenza da *origine* e arrivo a *destinazione* in timestamp
+* *compOrarioArrivo* e *compOrarioPartenza*: orari programmati di partenza da *origine* e arrivo a *destinazione* in formato HH:MM
+* *compRitardo* e *compRitardoAndamento*: descrizione testuale del ritardo in varie lingue
+* *oraUltimoRilevamento* e *stazioneUltimoRilevamento*: orario in timestamp e nome della stazione dell'ultimo rilevamento, valgono rispettivamente *null* e "--" se il treno non è ancora partito oppure è stato soppresso
+* *origineEstera*, *destinazioneEstera*, *oraPartenzaEstera*, *oraArrivoEstera*: valorizzati solo per treni internazionali
+* *tipoTreno* e *provvedimento* codificano lo stato del treno:
+  * *tipoTreno* vale 'PG' e *provvedimento* vale 0: treno regolare
+  * *tipoTreno* vale 'ST' e *provvedimento* vale 1: treno soppresso (in questo caso l'array *fermate* ha lunghezza 0)
+  * *tipoTreno* vale 'PP' oppure 'SI' oppure 'SF' e *provvedimento* vale 0 oppure 2: treno parzialmente soppresso (in questo caso uno o più elementi dell'array *fermate* hanno il campo *actualFermataType* uguale a 3)
+  * *tipoTreno* vale 'DV' e *provvedimento* vale 3: treno deviato (da approfondire)
+* *subTitle* se il treno è parzialmente soppresso (*tipoTreno* in ('PP', 'SI', 'SF')) contiene una descrizione della tratta cancellata (ad esempio: *Treno cancellato da NOVI LIGURE a ALESSANDRIA. Parte da ALESSANDRIA*)
+* *fermate*: array, un elemento per ogni fermata, con i seguenti campi principali:
+  * *id* e *stazione*: codice e nome della stazione
+  * *tipoFermata*: 'P' (stazione di origine), 'A' (stazione di destinazione), 'F' (fermata intermedia)
+  * *ritardoArrivo* e *ritardoPartenza*: ritardo in minuti di arrivo e partenza alla stazione, in minuti interi
+  * *ritardo*: ritardo in partenza (se *tipoFermata*=='P') e di arrivo altrimenti, in minuti interi
+  * *arrivoReale* e *partenzaReale*: orari effettivi di arrivo e partenza nella stazione, in timestamp
+  * *partenza_teorica* e *arrivo_teorico*: orari teorici di partenza e arrivo nella stazione, in timestamp - sono presenti dal 12 marzo 2015
+  * *programmata*: orario programmato di partenza (se *tipoFermata*=='P') e di arrivo altrimenti, in timestamp
+  * *programmataZero*: di solito vale *null*, è valorizzato in caso di orario riprogrammato
+  * *actualFermataType*:
+      * 1 fermata regolare
+      * 2 fermata non prevista
+      * 3 fermata soppressa (se *tipoTreno* in ('PP', 'SI', 'SF'))
+      * 0 Dato non disponibile (*arrivoReale* e/o *partenzaReale* valgono *null*, può essere perché il treno è ancora in viaggio e deve ancora arrivare nella fermata oppure perché il dato non è stato rilevato)
+  * *partenzaTeoricaZero* e *arrivoTeoricoZero*: da approfondire
+
+### Caveats
+
+- TODO: controllare comportamento parametro `orarioMezzanotte` e treni notturni.
