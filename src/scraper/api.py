@@ -3,6 +3,7 @@ import typing as t
 from datetime import datetime
 
 import requests
+from requests.adapters import HTTPAdapter, Retry
 
 from src import types
 from src.const import TIMEZONE
@@ -31,8 +32,23 @@ class BadRequestException(Exception):
 class ViaggiaTrenoAPI:
     BASE_URL: str = "http://www.viaggiatreno.it/infomobilita/resteasy/viaggiatreno/"
 
-    @staticmethod
-    def _raw_request(method: str, *parameters: t.Any) -> str:
+    # Initialize requests session with auto-retry and exponential backoff
+    _session: requests.Session = requests.Session()
+    _session.mount(
+        "http://",
+        HTTPAdapter(
+            max_retries=Retry(
+                total=10,
+                read=5,
+                status=10,
+                status_forcelist=[500, 502, 503, 504],
+                backoff_factor=0.2,
+            )
+        ),
+    )
+
+    @classmethod
+    def _raw_request(cls, method: str, *parameters: t.Any) -> str:
         """Perform a HTTP request to ViaggiaTreno API and return a raw string,
         if the request has been successful.
 
@@ -46,7 +62,7 @@ class ViaggiaTrenoAPI:
         Returns:
             str: the raw response from the API
         """
-        response: requests.Response = requests.get(
+        response: requests.Response = cls._session.get(
             f"{ViaggiaTrenoAPI.BASE_URL}{method}/"
             f"{'/'.join(map(lambda p: str(p), parameters))}"
         )
