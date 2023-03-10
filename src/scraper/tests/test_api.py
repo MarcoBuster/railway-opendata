@@ -1,8 +1,9 @@
+import itertools
 import typing as t
 
 import pytest
 
-from src.scraper import BadRequestException, Station, ViaggiaTrenoAPI
+from src.scraper import BadRequestException, Station, Train, ViaggiaTrenoAPI
 
 
 def test_bad_request():
@@ -43,3 +44,25 @@ def test_list_stations(region_code):
         assert type(station) == Station
         assert station._raw["codReg"] == region_code
         assert station._raw["tipoStazione"] != 4
+
+
+@pytest.mark.parametrize(
+    "kind, station_code",
+    itertools.product(
+        ("partenze", "arrivi"),
+        [
+            "S01700",
+            "S08409",
+            "S09218",
+            "S01608",
+        ],
+    ),
+)
+def test_station_departures_or_arrivals(kind: str, station_code: str):
+    response: t.List[Train] = ViaggiaTrenoAPI._station_departures_or_arrivals(
+        kind, station_code
+    )
+    for train in response:
+        assert type(train) == Train
+        assert train._raw["numeroTreno"] is not None
+        assert train._raw["codOrigine"] is not None

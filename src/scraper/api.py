@@ -1,10 +1,12 @@
 import json
 import typing as t
+from datetime import datetime
 
 import requests
 
 from src import types
-from src.scraper import Station
+from src.const import TIMEZONE
+from src.scraper import Station, Train
 
 
 class BadRequestException(Exception):
@@ -105,3 +107,45 @@ class ViaggiaTrenoAPI:
                 map(lambda s: Station(s), list(stations)),
             )
         )
+
+    @staticmethod
+    def _station_departures_or_arrivals(kind: str, station_code: str) -> t.List[Train]:
+        """Helper function to .station_departures and .station_arrivals methods
+
+        Args:
+            kind (str): either 'partenze' (departures) or 'arrivi' (arrivals)
+            station_code (str): the code of the considered station
+
+        Returns:
+            t.List[Train]: a list of trains departing o arriving to the station
+        """
+        assert kind in ["partenze", "arrivi"]
+
+        now: str = datetime.now(tz=TIMEZONE).strftime("%a %b %d %Y %H:%M:%S %Z%z")
+        raw_trains: str = ViaggiaTrenoAPI._raw_request(kind, station_code, now)
+        trains: types.JSONType = ViaggiaTrenoAPI._decode_json(raw_trains)
+        return list(map(lambda t: Train(t), trains))
+
+    @staticmethod
+    def station_departures(station_code: str) -> t.List[Train]:
+        """Retrieve the departures of a train station
+
+        Args:
+            station_code (str): the code of the considered station
+
+        Returns:
+            t.List[Train]: a list of trains departing from the station
+        """
+        return ViaggiaTrenoAPI._station_departures_or_arrivals("partenze", station_code)
+
+    @staticmethod
+    def station_arrivals(station_code: str) -> t.List[Train]:
+        """Retrieve the arrivals of a train station
+
+        Args:
+            station_code (str): the code of the considered station
+
+        Returns:
+            t.List[Train]: a list of trains departing from the station
+        """
+        return ViaggiaTrenoAPI._station_departures_or_arrivals("arrivi", station_code)
