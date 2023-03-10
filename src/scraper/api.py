@@ -10,13 +10,17 @@ from src.scraper import Station
 class BadRequestException(Exception):
     """Bad request to ViaggiaTreno API."""
 
-    def __init__(self, status_code: int, response: str, *args: object) -> None:
+    def __init__(
+        self, url: str, status_code: int, response: str, *args: object
+    ) -> None:
         """Creates a BadRequestException.
 
         Args:
+            url (str): the request URL
             status_code (int): the response status code
             response (str): the response data
         """
+        self.url = url
         self.status_code = status_code
         self.response = response
         super().__init__(*args)
@@ -47,6 +51,7 @@ class ViaggiaTrenoAPI:
 
         if response.status_code != 200 or "Error" in response.text:
             raise BadRequestException(
+                url=response.url,
                 status_code=response.status_code,
                 response=response.text,
             )
