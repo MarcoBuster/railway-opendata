@@ -100,7 +100,7 @@ class Station:
         """
         return ViaggiaTrenoAPI._station_departures_or_arrivals("partenze", self.code)
 
-    def station_arrivals(self) -> t.List[Train]:
+    def arrivals(self) -> t.List[Train]:
         """Retrieve the arrivals of a train station.
 
         Args:
