@@ -7,7 +7,7 @@ from requests.adapters import HTTPAdapter, Retry
 
 from src import types
 from src.const import TIMEZONE
-from src.scraper import Station, Train
+from src.scraper.train import Train
 
 
 class BadRequestException(Exception):
@@ -89,44 +89,8 @@ class ViaggiaTrenoAPI:
         return json.loads(string)
 
     @staticmethod
-    def station_region_code(station_code: str) -> int:
-        """Retrieve the region code of a given station (by its code).
-
-        Args:
-            station_code (str): the code of the station to check
-
-        Raises:
-            BadRequestException: if the response is not ok
-
-        Returns:
-            int: the region code of the given station
-        """
-        region_code = ViaggiaTrenoAPI._raw_request("regione", station_code)
-        return int(region_code)
-
-    @staticmethod
-    def list_stations(region_code: int) -> t.List[Station]:
-        """Retrieve the list of train stations of a given region.
-
-        Args:
-            region_code (int): the code of the region to query
-
-        Returns:
-            t.List[Station]: a list of train stations
-        """
-        raw_stations: str = ViaggiaTrenoAPI._raw_request("elencoStazioni", region_code)
-        stations: types.JSONType = ViaggiaTrenoAPI._decode_json(raw_stations)
-        return list(
-            filter(
-                # stations with tipoStazione == 4 are just placeholders
-                lambda s: s._raw["tipoStazione"] != 4,
-                map(lambda s: Station(s), list(stations)),
-            )
-        )
-
-    @staticmethod
     def _station_departures_or_arrivals(kind: str, station_code: str) -> t.List[Train]:
-        """Helper function to .station_departures and .station_arrivals methods.
+        """Helper function to Station.departures and Station.arrivals methods.
 
         Args:
             kind (str): either 'partenze' (departures) or 'arrivi' (arrivals)
@@ -141,30 +105,6 @@ class ViaggiaTrenoAPI:
         raw_trains: str = ViaggiaTrenoAPI._raw_request(kind, station_code, now)
         trains: types.JSONType = ViaggiaTrenoAPI._decode_json(raw_trains)
         return list(map(lambda t: Train(t), trains))
-
-    @staticmethod
-    def station_departures(station_code: str) -> t.List[Train]:
-        """Retrieve the departures of a train station.
-
-        Args:
-            station_code (str): the code of the considered station
-
-        Returns:
-            t.List[Train]: a list of trains departing from the station
-        """
-        return ViaggiaTrenoAPI._station_departures_or_arrivals("partenze", station_code)
-
-    @staticmethod
-    def station_arrivals(station_code: str) -> t.List[Train]:
-        """Retrieve the arrivals of a train station.
-
-        Args:
-            station_code (str): the code of the considered station
-
-        Returns:
-            t.List[Train]: a list of trains departing from the station
-        """
-        return ViaggiaTrenoAPI._station_departures_or_arrivals("arrivi", station_code)
 
     @staticmethod
     def train_details(departing_station_code: str, train_number: int) -> Train:

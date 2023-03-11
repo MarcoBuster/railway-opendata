@@ -18,35 +18,6 @@ def test_ok_request():
 
 
 @pytest.mark.parametrize(
-    "station_code, region_code",
-    [
-        ("S01700", 1),  # Milano Centrale
-        ("S08409", 5),  # Roma Termini
-        ("S09218", 18),  # Napoli Centrale
-        ("S01608", 1),  # Arcene
-    ],
-)
-def test_station_region_code(station_code, region_code):
-    response: int = ViaggiaTrenoAPI.station_region_code(station_code)
-    assert type(response) == int
-    assert response == region_code
-
-
-def test_station_region_code_invalid():
-    with pytest.raises(BadRequestException):
-        ViaggiaTrenoAPI.station_region_code("S00000")
-
-
-@pytest.mark.parametrize("region_code", range(0, 22 + 1))
-def test_list_stations(region_code):
-    response: t.List[Station] = ViaggiaTrenoAPI.list_stations(region_code)
-    for station in response:
-        assert type(station) == Station
-        assert station._raw["codReg"] == region_code
-        assert station._raw["tipoStazione"] != 4
-
-
-@pytest.mark.parametrize(
     "kind, station_code",
     itertools.product(
         ("partenze", "arrivi"),
@@ -69,7 +40,8 @@ def test_station_departures_or_arrivals(kind: str, station_code: str):
 
 
 def test_train_details():
-    departing_trains: t.List[Train] = ViaggiaTrenoAPI.station_departures("S01700")
+    station: Station = Station(code="S01700", region_code=1, name="Milano Centrale")
+    departing_trains: t.List[Train] = station.departures()
     for raw_train in departing_trains:
         train: Train = ViaggiaTrenoAPI.train_details(
             raw_train._raw["codOrigine"], raw_train._raw["numeroTreno"]
