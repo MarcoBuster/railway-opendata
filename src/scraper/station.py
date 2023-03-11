@@ -16,6 +16,8 @@ class Station:
         position (Tuple[float, float] | None): the latitude and longitude of the station
     """
 
+    _cache: dict[str, "Station"] = dict()
+
     def __init__(
         self,
         code: str,
@@ -35,8 +37,8 @@ class Station:
         """
         self.code: str = code
         self.region_code: int = region_code
-        self.name: str = name.title()
-        self.short_name: str = short_name.title() if short_name else name
+        self.name: str = name.title().strip()
+        self.short_name: str = short_name.title().strip() if short_name else name
         self.position: t.Tuple[float, float] | None = position
 
     @classmethod
@@ -46,13 +48,28 @@ class Station:
         Args:
             station_data (dict): raw data returned by the API.
         """
-        return cls(
-            code=raw_data["codStazione"],
-            region_code=raw_data["codReg"],
-            name=raw_data["localita"]["nomeLungo"],
-            short_name=raw_data["localita"]["nomeBreve"],
-            position=(raw_data["lat"], raw_data["lon"]),
-        )
+        station_code = raw_data["codStazione"]
+
+        if station_code not in cls._cache:
+            cls._cache[station_code] = cls(
+                code=station_code,
+                region_code=raw_data["codReg"],
+                name=raw_data["localita"]["nomeLungo"],
+                short_name=raw_data["localita"]["nomeBreve"],
+                position=(raw_data["lat"], raw_data["lon"]),
+            )
+        else:
+            cached: Station = cls._cache[station_code]
+
+            # codReg can have multiple values depending on the request.
+            # If an inequality is detected, settle the correct region_code once for all.
+            if raw_data["codReg"] != cached.region_code:
+                cached.region_code = Station._region_code(station_code)
+
+        return cls._cache[station_code]
+
+    def __repr__(self) -> str:
+        return f"Stazione di {self.name} [{self.code}@{self.region_code}]"
 
     @staticmethod
     def _region_code(station_code: str) -> int:

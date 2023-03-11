@@ -213,6 +213,8 @@ Alcuni tentativi di documentazione dei campi (da _trial-and-error_):
 - `nomeCitta` può essere nullo o `"A"` (stesso significato);
 - rispetto al metodo `cercaStazione` __più stazioni__ sono presenti, ma comunque __non tutte__.
 In particolare, le stazioni senza informazioni aggiuntive (come AIELLO, S08550) non sono visualizzate _in toto_.
+- alcune stazioni possono essere __in più regioni contemporaneamente__: per esempio, la stazione di CASALMAGGIORE (S01850) viene ritornata dall'elenco della Lombardia (1) e da quello dell'Emilia Romagna (8).
+Utilizzando il metodo `/regione`, però, è chiaro come la regione si trovi in realtà in Lombardia.
 
 ### Esempio
 

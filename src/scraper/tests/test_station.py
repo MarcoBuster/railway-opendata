@@ -53,7 +53,6 @@ def test_assumptions(region_code):
     response: t.List[Station] = Station.by_region(region_code)
     for station in response:
         assert station.code is not None
-        assert station.region_code == region_code
         assert station.name is not None
         assert station.short_name is not None
         assert station.position is not None
@@ -84,4 +83,9 @@ def test_by_region(region_code):
     response: t.List[Station] = Station.by_region(region_code)
     for station in response:
         assert type(station) == Station
-        assert station.region_code == region_code
+        try:
+            assert station.region_code == region_code
+        except AssertionError:
+            # Recheck with the *actually* correct _region_code:
+            # sometimes the 'elencoStazioni' call can be misleading.
+            assert station.region_code == Station._region_code(station.code)
