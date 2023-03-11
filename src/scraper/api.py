@@ -5,9 +5,9 @@ from datetime import datetime
 import requests
 from requests.adapters import HTTPAdapter, Retry
 
+import src.scraper.train as tr
 from src import types
 from src.const import TIMEZONE
-from src.scraper.train import Train
 
 
 class BadRequestException(Exception):
@@ -89,7 +89,9 @@ class ViaggiaTrenoAPI:
         return json.loads(string)
 
     @staticmethod
-    def _station_departures_or_arrivals(kind: str, station_code: str) -> t.List[Train]:
+    def _station_departures_or_arrivals(
+        kind: str, station_code: str
+    ) -> t.List["tr.Train"]:
         """Helper function to Station.departures and Station.arrivals methods.
 
         Args:
@@ -104,10 +106,15 @@ class ViaggiaTrenoAPI:
         now: str = datetime.now(tz=TIMEZONE).strftime("%a %b %d %Y %H:%M:%S %Z%z")
         raw_trains: str = ViaggiaTrenoAPI._raw_request(kind, station_code, now)
         trains: types.JSONType = ViaggiaTrenoAPI._decode_json(raw_trains)
-        return list(map(lambda t: Train(t), trains))
+        return list(
+            map(
+                lambda t: tr.Train._from_station_departures_arrivals(t),
+                trains,
+            )
+        )
 
     @staticmethod
-    def train_details(departing_station_code: str, train_number: int) -> Train:
+    def train_details(departing_station_code: str, train_number: int) -> "tr.Train":
         """Retreive the details of a train.
 
         Args:
@@ -134,4 +141,4 @@ class ViaggiaTrenoAPI:
             int(midnight.timestamp() * 1000),
         )
         train_details: types.JSONType = ViaggiaTrenoAPI._decode_json(raw_details)
-        return Train(train_details)
+        return tr.Train(train_details)

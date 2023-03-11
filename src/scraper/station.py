@@ -1,8 +1,8 @@
 import typing as t
 
+import src.scraper.api as api
+import src.scraper.train as tr
 from src import types
-from src.scraper import ViaggiaTrenoAPI
-from src.scraper.train import Train
 
 
 class Station:
@@ -82,11 +82,16 @@ class Station:
             Station: a station corresponding to the passed station code
         """
         if station_code not in cls._cache:
-            region_code: int = cls._region_code(station_code)
-            response: str = ViaggiaTrenoAPI._raw_request(
+            try:
+                region_code: int = cls._region_code(station_code)
+            except api.BadRequestException as e:
+                if e.status_code != 204:
+                    raise e
+                region_code: int = 0
+            response: str = api.ViaggiaTrenoAPI._raw_request(
                 "dettaglioStazione", station_code, region_code
             )
-            raw_data: types.JSONType = ViaggiaTrenoAPI._decode_json(response)
+            raw_data: types.JSONType = api.ViaggiaTrenoAPI._decode_json(response)
             cls._cache[station_code] = cls._from_raw(raw_data)
 
         return cls._cache[station_code]
@@ -104,7 +109,7 @@ class Station:
         Returns:
             int: the region code of the given station
         """
-        region_code = ViaggiaTrenoAPI._raw_request("regione", station_code)
+        region_code = api.ViaggiaTrenoAPI._raw_request("regione", station_code)
         return int(region_code)
 
     @classmethod
@@ -117,8 +122,10 @@ class Station:
         Returns:
             t.List[Station]: a list of train stations
         """
-        raw_stations: str = ViaggiaTrenoAPI._raw_request("elencoStazioni", region_code)
-        stations: types.JSONType = ViaggiaTrenoAPI._decode_json(raw_stations)
+        raw_stations: str = api.ViaggiaTrenoAPI._raw_request(
+            "elencoStazioni", region_code
+        )
+        stations: types.JSONType = api.ViaggiaTrenoAPI._decode_json(raw_stations)
         return list(
             map(
                 lambda s: cls._from_raw(s),
@@ -126,7 +133,7 @@ class Station:
             )
         )
 
-    def departures(self) -> t.List[Train]:
+    def departures(self) -> t.List["tr.Train"]:
         """Retrieve the departures of a train station.
 
         Args:
@@ -135,9 +142,11 @@ class Station:
         Returns:
             t.List[Train]: a list of trains departing from the station
         """
-        return ViaggiaTrenoAPI._station_departures_or_arrivals("partenze", self.code)
+        return api.ViaggiaTrenoAPI._station_departures_or_arrivals(
+            "partenze", self.code
+        )
 
-    def arrivals(self) -> t.List[Train]:
+    def arrivals(self) -> t.List["tr.Train"]:
         """Retrieve the arrivals of a train station.
 
         Args:
@@ -146,4 +155,4 @@ class Station:
         Returns:
             t.List[Train]: a list of trains departing from the station
         """
-        return ViaggiaTrenoAPI._station_departures_or_arrivals("arrivi", self.code)
+        return api.ViaggiaTrenoAPI._station_departures_or_arrivals("arrivi", self.code)
