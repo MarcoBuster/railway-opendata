@@ -43,7 +43,7 @@ class Station:
 
     @classmethod
     def _from_raw(cls, raw_data: dict) -> "Station":
-        """Initialize a new station from raw API data.
+        """Initialize a new station from raw API data, or use the class cache.
 
         Args:
             station_data (dict): raw data returned by the API.
@@ -70,6 +70,26 @@ class Station:
 
     def __repr__(self) -> str:
         return f"Stazione di {self.name} [{self.code}@{self.region_code}]"
+
+    @classmethod
+    def by_code(cls, station_code: str) -> "Station":
+        """Retrieve a station by its code, or use cache.
+
+        Args:
+            station_code (str): the station code
+
+        Returns:
+            Station: a station corresponding to the passed station code
+        """
+        if station_code not in cls._cache:
+            region_code: int = cls._region_code(station_code)
+            response: str = ViaggiaTrenoAPI._raw_request(
+                "dettaglioStazione", station_code, region_code
+            )
+            raw_data: types.JSONType = ViaggiaTrenoAPI._decode_json(response)
+            cls._cache[station_code] = cls._from_raw(raw_data)
+
+        return cls._cache[station_code]
 
     @staticmethod
     def _region_code(station_code: str) -> int:

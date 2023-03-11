@@ -59,6 +59,21 @@ def test_assumptions(region_code):
 
 
 @pytest.mark.parametrize(
+    "station_code, station_name",
+    [
+        ("S01700", "Milano Centrale"),
+        ("S08409", "Roma Termini"),
+        ("S09218", "Napoli Centrale"),
+        ("S01608", "Arcene"),
+    ],
+)
+def test_by_code(station_code, station_name):
+    station: Station = Station.by_code(station_code)
+    assert station.code == station_code
+    assert station.name == station_name
+
+
+@pytest.mark.parametrize(
     "station_code, region_code",
     [
         ("S01700", 1),  # Milano Centrale
