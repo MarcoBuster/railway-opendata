@@ -366,6 +366,12 @@ Un array JSON.
 
 TODO documentazione.
 
+Altri campi:
+- `provvedimento`: da rilevazioni empiriche, sembra che può assumere i seguenti valori.
+  - `0`: regolare;
+  - `1`: treno cancellato;
+  - `2`: treno parzialmente cancellato / deviato / riprogrammato;
+
 ### Esempio
 
 > [/partenze/S01700/Wed Mar 08 2023 17:04:00 GMT+0100](http://www.viaggiatreno.it/infomobilita/resteasy/viaggiatreno/elencoStazioni/1)
@@ -421,3 +427,150 @@ Nella [repo di roughconsensusandrunningcode](https://github.com/roughconsensusan
 ### Caveats
 
 - TODO: controllare comportamento parametro `orarioMezzanotte` e treni notturni.
+- Alcune volte, nonostante il treno esista e sia già stato ritornato da altre chiamate API (come `partenze`), `andamentoTreno` ritorna HTTP 204.
+In questo caso, i dettagli della corsa non sono semplicemente disponibili.
+Spesso accade con __treni cancellati__ o __riprogrammati__.
+
+#### Esempio di treno parzialmente cancellato
+
+L'11 marzo 2023, il treno IC 551 è stato parzialmente cancellato:
+
+> _**IC 551 Roma Termini (9:26) - Reggio Calabria Centrale (16:50)**: cancellato tra Salerno e Vallo della Lucania._
+> _I passeggeri possono proseguire da Salerno con il treno **IC 723 Roma Termini (7:26) - Palermo Centrale (19:25)** fino a Villa San Giovanni, dove trovano ulteriore proseguimento per Reggio Calabria Centrale con i primi treni Regionali utili._
+>
+> __InfoMobilità dell'11 marzo 2023 ore 10:00.__
+
+All'endpoint `/partenze` di __Napoli Centrale__ (S09218) il treno IC 551 è presente.
+
+```json
+{
+  "numeroTreno": 551,
+  "categoria": "IC",
+  "categoriaDescrizione": "IC",
+  "origine": null,
+  "codOrigine": "S08409",
+  "destinazione": "SALERNO",
+  "codDestinazione": null,
+  "origineEstera": null,
+  "destinazioneEstera": null,
+  "oraPartenzaEstera": null,
+  "oraArrivoEstera": null,
+  "tratta": 0,
+  "regione": 0,
+  "origineZero": null,
+  "destinazioneZero": null,
+  "orarioPartenzaZero": null,
+  "orarioArrivoZero": null,
+  "circolante": true,
+  "codiceCliente": 4,
+  "binarioEffettivoArrivoCodice": null,
+  "binarioEffettivoArrivoDescrizione": null,
+  "binarioEffettivoArrivoTipo": null,
+  "binarioProgrammatoArrivoCodice": null,
+  "binarioProgrammatoArrivoDescrizione": null,
+  "binarioEffettivoPartenzaCodice": "507",
+  "binarioEffettivoPartenzaDescrizione": "10",
+  "binarioEffettivoPartenzaTipo": "0",
+  "binarioProgrammatoPartenzaCodice": "0",
+  "binarioProgrammatoPartenzaDescrizione": "13",
+  "subTitle": null,
+  "esisteCorsaZero": null,
+  "orientamento": null,
+  "inStazione": false,
+  "haCambiNumero": false,
+  "nonPartito": false,
+  "provvedimento": 2,
+  "riprogrammazione": "Y",
+  "orarioPartenza": 1678531500000,
+  "orarioArrivo": null,
+  "stazionePartenza": null,
+  "stazioneArrivo": null,
+  "statoTreno": null,
+  "corrispondenze": null,
+  "servizi": null,
+  "ritardo": 0,
+  "tipoProdotto": "0",
+  "compOrarioPartenzaZeroEffettivo": "11:45",
+  "compOrarioArrivoZeroEffettivo": null,
+  "compOrarioPartenzaZero": "11:45",
+  "compOrarioArrivoZero": null,
+  "compOrarioArrivo": null,
+  "compOrarioPartenza": "11:45",
+  "compNumeroTreno": "IC 551",
+  "compOrientamento": [
+    "--",
+    "--",
+    "--",
+    "--",
+    "--",
+    "--",
+    "--",
+    "--",
+    "--"
+  ],
+  "compTipologiaTreno": "nazionale",
+  "compClassRitardoTxt": "",
+  "compClassRitardoLine": "regolare_line",
+  "compImgRitardo2": "",
+  "compImgRitardo": "/vt_static/img/legenda/icone_legenda/regolare.png",
+  "compRitardo": [
+    "in orario",
+    "on time",
+    "p&#252;nktlich",
+    "&agrave; l'heure",
+    "en horario",
+    "conform orarului",
+    "定刻",
+    "按时",
+    "по расписанию"
+  ],
+  "compRitardoAndamento": [
+    "in orario",
+    "on time",
+    "p&#252;nktlich",
+    "&agrave; l'heure",
+    "en horario",
+    "conform orarului",
+    "定刻",
+    "按时",
+    "по расписанию"
+  ],
+  "compInStazionePartenza": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "compInStazioneArrivo": [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+  ],
+  "compOrarioEffettivoArrivo": null,
+  "compDurata": "",
+  "compImgCambiNumerazione": "&nbsp;&nbsp;<img src=\"/vt_static/img/legenda/icone_legenda/riprogrammato.png\">&nbsp;<img src=\"/vt_static/img/legenda/icone_legenda/cancellazione.png\">",
+  "materiale_label": null,
+  "dataPartenzaTreno": 1678489200000
+},
+```
+
+L'endpoint `/andamentoTreno` (con i parametri corretti) ritorna però __HTTP 204 (No Content)__.
+In effetti, cercando lo stesso treno sul portale web di ViaggiaTreno la pagina fa le stesse chiamate API descritte sopra, fino ad entrare in un caricamento infinito in seguito alla ricezione di HTTP 204.
+
+In nessun portale ufficiale e non sono reperibili le effettive informazioni del treno, escludendo presumibilmente i monitor in stazione.
+
+Di seguito alcuni __campi notevoli__ dalla risposta di `/partenze` che possono essere utilizzati come campanelli d'allarme per rilevare questo tipo di situazioni.
+- `"provvedimento": 2`, indicante _treno cancellato parzialmente_;
+- `"riprogrammazione": "Y"`;
+- `"compImgCambiNumerazione"` contiene dell'HTML con due immagini chiamate `riprogrammato.png` e `cancellazione.png`, che vengono effettivamente visualizzate nel portale web.
