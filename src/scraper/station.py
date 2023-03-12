@@ -1,3 +1,4 @@
+import logging
 import typing as t
 
 import src.scraper.api as api
@@ -73,12 +74,15 @@ class Station:
             # codReg can have multiple values depending on the request.
             # If an inequality is detected, settle the correct region_code once for all.
             if raw_data["codReg"] != cached.region_code:
+                logging.warning(
+                    f"Provided region code for {station_code} is different from the cached one"
+                )
                 cached.region_code = Station._region_code(station_code)
 
         return cls._cache[station_code]
 
     def __repr__(self) -> str:
-        return f"Stazione di {self.name} [{self.code}@{self.region_code}]"
+        return f"{self.name} [{self.code}@{self.region_code}]"
 
     @classmethod
     def by_code(cls, station_code: str) -> "Station":

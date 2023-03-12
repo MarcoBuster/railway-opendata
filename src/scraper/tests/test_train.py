@@ -31,10 +31,7 @@ def test_fetch(kind, station_code):
 def test_unfetched_repr_1():
     milan: Station = Station.by_code("S01700")
     train: Train = Train(10911, milan)
-    assert (
-        repr(train)
-        == "Treno [?] ??? 10911 : Stazione di Milano Centrale [S01700@1] -> ???"
-    )
+    assert repr(train) == "Treno [?] ??? 10911 : Milano Centrale [S01700@1] -> ???"
 
 
 def test_unfetched_repr_2():
@@ -47,7 +44,4 @@ def test_unfetched_repr_2():
             "provvedimento": 0,
         }
     )
-    assert (
-        repr(train)
-        == "Treno [D] REG 10911 : Stazione di Milano Centrale [S01700@1] -> ???"
-    )
+    assert repr(train) == "Treno [D] REG 10911 : Milano Centrale [S01700@1] -> ???"
