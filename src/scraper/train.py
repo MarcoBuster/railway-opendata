@@ -23,7 +23,10 @@ class Train:
         delay (int | None): instantaneous delay of the train, based on last detection
         last_detection_place (str | None): place of last detection, it can be a station (or a stop)
         last_detection_time (datetime | None): time of last detection
+
+    Meta attributes:
         _phantom (bool): true if no more data can be fetched (e.g. train is cancelled)
+        _fetched (datetime | None): the last time the data has been fetched successfully
     """
 
     def __init__(self, number: int, origin: st.Station) -> None:
@@ -50,6 +53,7 @@ class Train:
         self.last_detection_time: datetime | None = None
 
         self._phantom: bool = False
+        self._fetched: datetime | None = None
 
     @classmethod
     def _from_station_departures_arrivals(cls, train_data: dict) -> "Train":
@@ -130,12 +134,19 @@ class Train:
         # There should always be at least two stops: the first and the last.
         assert len(self.stops) >= 2
 
+        self._fetched = datetime.now()
+
     def __repr__(self) -> str:
+        if not self._fetched:
+            if self.departed and self.category:
+                return f"Treno [{'D' if self.departed else 'S'}] {self.category} {self.number} : {self.origin} -> ???"
+            else:
+                return f"Treno [?] ??? {self.number} : {self.origin} -> ???"
+
         if self._phantom:
             return f"Treno [?] {self.category} {self.number} : {self.origin} -> ?"
 
         assert isinstance(self.stops, list)
-
         return (
             f"Treno [{'D' if self.departed else 'S'}{'X' if self.cancelled else ''}] "
             f"{self.category} {self.number} : {self.origin} -> {self.destination}"

@@ -26,3 +26,28 @@ def test_fetch(kind, station_code):
     )
     for train in trains:
         train.fetch()
+
+
+def test_unfetched_repr_1():
+    milan: Station = Station.by_code("S01700")
+    train: Train = Train(10911, milan)
+    assert (
+        repr(train)
+        == "Treno [?] ??? 10911 : Stazione di Milano Centrale [S01700@1] -> ???"
+    )
+
+
+def test_unfetched_repr_2():
+    train: Train = Train._from_station_departures_arrivals(
+        {
+            "numeroTreno": 10911,
+            "codOrigine": "S01700",
+            "categoriaDescrizione": "REG",
+            "nonPartito": False,
+            "provvedimento": 0,
+        }
+    )
+    assert (
+        repr(train)
+        == "Treno [D] REG 10911 : Stazione di Milano Centrale [S01700@1] -> ???"
+    )
