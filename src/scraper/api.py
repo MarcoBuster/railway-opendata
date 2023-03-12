@@ -89,6 +89,22 @@ class ViaggiaTrenoAPI:
         return json.loads(string)
 
     @staticmethod
+    def _to_datetime(time: int | None) -> datetime | None:
+        """Convert a UNIX timestamp with milliseconds to datetime.
+        If None is passed, None is returned.
+
+        Args:
+            time (int | None): the UNIX timestamp to convert
+
+        Returns:
+            datetime | None: the resulting datetime object
+        """
+        if not time:
+            return None
+
+        return datetime.fromtimestamp(time / 1000)
+
+    @staticmethod
     def _station_departures_or_arrivals(
         kind: str, station_code: str
     ) -> t.List["tr.Train"]:
@@ -112,33 +128,3 @@ class ViaggiaTrenoAPI:
                 trains,
             )
         )
-
-    @staticmethod
-    def train_details(departing_station_code: str, train_number: int) -> "tr.Train":
-        """Retreive the details of a train.
-
-        Args:
-            departing_station_code (str): the code of the departure station of the train
-            train_number (int): the train number to check
-
-        Returns:
-            Train: the details of the train
-
-        Notes:
-            A train number alone DOES NOT uniquely identify a train.
-        """
-
-        # Calculate midnight of today
-        now: datetime = datetime.now()
-        midnight: datetime = datetime(
-            year=now.year, month=now.month, day=now.day, hour=0, minute=0, second=0
-        )
-
-        raw_details: str = ViaggiaTrenoAPI._raw_request(
-            "andamentoTreno",
-            departing_station_code,
-            train_number,
-            int(midnight.timestamp() * 1000),
-        )
-        train_details: types.JSONType = ViaggiaTrenoAPI._decode_json(raw_details)
-        return tr.Train(train_details)
