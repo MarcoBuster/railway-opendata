@@ -45,3 +45,9 @@ def test_unfetched_repr_2():
         }
     )
     assert repr(train) == "Treno [D] REG 10911 : Milano Centrale [S01700@1] -> ???"
+
+
+def test_hash():
+    milan: Station = Station.by_code("S01700")
+    train: Train = Train(10911, milan)
+    assert hash(train) is not None

@@ -152,3 +152,6 @@ class Train:
             f"{self.category} {self.number} : {self.origin} -> {self.destination}"
             f"\n{chr(10).join([str(stop) for stop in self.stops])}"
         )
+
+    def __hash__(self) -> int:
+        return hash(self.number) + hash(self.origin.code)

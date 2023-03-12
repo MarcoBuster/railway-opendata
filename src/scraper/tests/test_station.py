@@ -105,3 +105,9 @@ def test_by_region(region_code):
             # Recheck with the *actually* correct _region_code:
             # sometimes the 'elencoStazioni' call can be misleading.
             assert station.region_code == Station._region_code(station.code)
+
+
+def test_hash():
+    milan: Station = Station.by_code("S01700")
+    rome: Station = Station.by_code("S08409")
+    assert hash(milan) != hash(rome)

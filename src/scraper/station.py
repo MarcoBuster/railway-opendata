@@ -181,3 +181,6 @@ class Station:
             t.List[Train]: a list of trains departing from the station
         """
         return api.ViaggiaTrenoAPI._station_departures_or_arrivals("arrivi", self.code)
+
+    def __hash__(self) -> int:
+        return hash(self.name)
