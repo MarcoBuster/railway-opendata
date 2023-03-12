@@ -11,9 +11,12 @@ class Station:
     Attributes:
         code (str): the station code, used in API calls (e.g. S01700)
         region_code (int): the code of the region where the station is located
-        name (str): the station name (e.g. Milano Centrale)
-        short_name (str): a shortened version of the name (e.g. Milano C.le)
+        name (str | None): the station name (e.g. Milano Centrale)
+        short_name (str | None): a shortened version of the name (e.g. Milano C.le)
         position (Tuple[float, float] | None): the latitude and longitude of the station
+
+    Other attributes:
+        _phantom (bool): if True, the details of the station can't be fetched
     """
 
     _cache: dict[str, "Station"] = dict()
@@ -22,7 +25,7 @@ class Station:
         self,
         code: str,
         region_code: int,
-        name: str,
+        name: str | None,
         short_name: str | None = None,
         position: t.Tuple[float, float] | None = None,
     ) -> None:
@@ -31,15 +34,21 @@ class Station:
         Args:
             code (str): the station code, used in API calls (e.g. S01700)
             region_code (int): the code of the region where the station is located
-            name (str): the station name (e.g. Milano Centrale)
-            short_name (str, optional): a shortened version of the name (e.g. Milano C.le)
+            name (str | None): the station name (e.g. Milano Centrale)
+            short_name (str | None, optional): a shortened version of the name (e.g. Milano C.le)
             position (Tuple[float, float] | None, optional): the latitude and longitude of the station
         """
         self.code: str = code
         self.region_code: int = region_code
-        self.name: str = name.title().strip()
-        self.short_name: str = short_name.title().strip() if short_name else name
+        self.name: str | None = None
+        if name:
+            self.name: str | None = name.title().strip()
+            self.short_name: str | None = (
+                short_name.title().strip() if short_name else name
+            )
         self.position: t.Tuple[float, float] | None = position
+
+        self._phantom: bool = self.name == None
 
     @classmethod
     def _from_raw(cls, raw_data: dict) -> "Station":
@@ -87,12 +96,24 @@ class Station:
             except api.BadRequestException as e:
                 if e.status_code != 204:
                     raise e
+
                 region_code: int = 0
-            response: str = api.ViaggiaTrenoAPI._raw_request(
-                "dettaglioStazione", station_code, region_code
-            )
-            raw_data: types.JSONType = api.ViaggiaTrenoAPI._decode_json(response)
-            cls._cache[station_code] = cls._from_raw(raw_data)
+
+            try:
+                response: str = api.ViaggiaTrenoAPI._raw_request(
+                    "dettaglioStazione", station_code, region_code
+                )
+                raw_data: types.JSONType = api.ViaggiaTrenoAPI._decode_json(response)
+                cls._cache[station_code] = cls._from_raw(raw_data)
+            except api.BadRequestException as e:
+                if e.status_code != 204:
+                    raise e
+
+                cls._cache[station_code] = cls(
+                    code=station_code,
+                    region_code=region_code,
+                    name=None,
+                )
 
         return cls._cache[station_code]
 
