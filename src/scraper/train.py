@@ -1,7 +1,9 @@
+import typing as t
 from datetime import datetime
 
 import src.scraper.api as api
 import src.scraper.station as st
+import src.scraper.train_stop as tr_st
 from src import types
 
 
@@ -17,6 +19,7 @@ class Train:
         cancelled (bool | None): true if the train has been cancelled (partially or totally)
 
     Extended attributes: these attributes are updated by the fetch() method.
+        stops (List[TrainStop] | None): the train stops; see TrainStop for more details
         delay (int | None): instantaneous delay of the train, based on last detection
         last_detection_place (str | None): place of last detection, it can be a station (or a stop)
         last_detection_time (datetime | None): time of last detection
@@ -41,6 +44,7 @@ class Train:
         self.cancelled: bool | None = None
 
         # Extended attributes
+        self.stops: t.List[tr_st.TrainStop] | None = None
         self.delay: int | None = None
         self.last_detection_place: str | None = None
         self.last_detection_time: datetime | None = None
@@ -80,14 +84,13 @@ class Train:
             year=now.year, month=now.month, day=now.day, hour=0, minute=0, second=0
         )
 
-        raw_details: str = api.ViaggiaTrenoAPI._raw_request(
-            "andamentoTreno",
-            self.origin.code,
-            self.number,
-            int(midnight.timestamp() * 1000),
-        )
-
         try:
+            raw_details: str = api.ViaggiaTrenoAPI._raw_request(
+                "andamentoTreno",
+                self.origin.code,
+                self.number,
+                int(midnight.timestamp() * 1000),
+            )
             train_data: types.JSONType = api.ViaggiaTrenoAPI._decode_json(raw_details)
         except api.BadRequestException:
             self._phantom = True
@@ -119,13 +122,22 @@ class Train:
             train_data["oraUltimoRilevamento"]
         )
 
-        # TODO: train stops
+        self.stops = list()
+        for raw_stop in train_data["fermate"]:
+            stop: tr_st.TrainStop = tr_st.TrainStop._from_raw_data(raw_stop)
+            self.stops.append(stop)
+
+        # There should always be at least two stops: the first and the last.
+        assert len(self.stops) >= 2
 
     def __repr__(self) -> str:
         if self._phantom:
             return f"Treno [?] {self.category} {self.number} : {self.origin} -> ?"
 
+        assert isinstance(self.stops, list)
+
         return (
             f"Treno [{'D' if self.departed else 'S'}{'X' if self.cancelled else ''}] "
             f"{self.category} {self.number} : {self.origin} -> {self.destination}"
+            f"\n{chr(10).join([str(stop) for stop in self.stops])}"
         )

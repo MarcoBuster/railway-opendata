@@ -7,7 +7,6 @@ import pytest
 from src import types
 from src.scraper import BadRequestException
 from src.scraper.station import Station
-from src.scraper.train import Train
 
 DATA_DIR = pathlib.Path("src/scraper/tests/data")
 

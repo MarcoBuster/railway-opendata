@@ -102,7 +102,7 @@ class ViaggiaTrenoAPI:
         if not time:
             return None
 
-        return datetime.fromtimestamp(time / 1000)
+        return datetime.fromtimestamp(time / 1000, tz=TIMEZONE)
 
     @staticmethod
     def _station_departures_or_arrivals(
