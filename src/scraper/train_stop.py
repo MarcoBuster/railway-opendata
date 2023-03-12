@@ -11,6 +11,7 @@ class TrainStopType(Enum):
     FIRST = "P"
     STOP = "F"
     LAST = "A"
+    CANCELLED = "C"
 
 
 class TrainStopTime:
@@ -122,6 +123,9 @@ class TrainStop:
         self.arrival: TrainStopTime | None = None
         self.departure: TrainStopTime | None = None
 
+        if self.stop_type == TrainStopType.CANCELLED:
+            return
+
         if self.stop_type != TrainStopType.FIRST:
             assert isinstance(arrival_expected, datetime)
             self.arrival = TrainStopTime(arrival_expected, arrival_actual)
@@ -145,8 +149,10 @@ class TrainStop:
             stop_type = TrainStopType.FIRST
         elif stop_data["tipoFermata"] == "A":
             stop_type = TrainStopType.LAST
-        else:
+        elif stop_data["tipoFermata"] == "F":
             stop_type = TrainStopType.STOP
+        else:
+            stop_type = TrainStopType.CANCELLED
 
         _to_dt = api.ViaggiaTrenoAPI._to_datetime
 
