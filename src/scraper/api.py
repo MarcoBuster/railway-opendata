@@ -41,7 +41,7 @@ class ViaggiaTrenoAPI:
                 total=10,
                 read=5,
                 status=10,
-                status_forcelist=[500, 502, 503, 504],
+                status_forcelist=[403, 500, 502, 503, 504],
                 backoff_factor=0.2,
             )
         ),
