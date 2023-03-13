@@ -41,6 +41,7 @@ def main() -> None:
     except FileExistsError:
         pass
 
+    station_cache: dict[str, Station] = load_dataset(DATA_DIR / "stations.json")
     fetched_trains: dict[int, Train] = load_dataset(today_path / "trains.json")
     unfetched_trains: dict[int, Train] = load_dataset(today_path / "unfetched.json")
 
@@ -51,8 +52,13 @@ def main() -> None:
     )
 
     # Initialize Station cache
+    if len(station_cache) != 0:
+        Station._cache = station_cache
+    logging.info(f"Initialized station cache with {len(station_cache)} elements")
+
+    # Fetch stations
     stations: set[Station] = set(
-        itertools.chain.from_iterable([Station.by_region(r) for r in range(1, 22)])
+        itertools.chain.from_iterable([Station.by_region(r) for r in range(1, 23)])
     )
     logging.info(f"Retrieved {len(stations)} stations")
 
@@ -89,6 +95,7 @@ def main() -> None:
                 logging.debug(f"Saved {train.category} {train.number}")
             else:
                 unfetched_trains[hash(train)] = train
+        break
 
     logging.info(f"Retrieved {len(fetched_trains) - fetched_old_n} new trains")
     logging.info(
@@ -96,7 +103,9 @@ def main() -> None:
         f"({(len(unfetched_trains) - unfetched_old_n):+d})"
     )
 
+    save_dataset(DATA_DIR / "stations.json", Station._cache)
     save_dataset(today_path / "trains.json", fetched_trains)
     save_dataset(today_path / "unfetched.json", unfetched_trains)
 
     logging.info(f"Trains saved today: {len(fetched_trains)}")
+    logging.info(f"Station cache size: {len(Station._cache)}")
