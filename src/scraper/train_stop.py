@@ -144,6 +144,10 @@ class TrainStop:
         Returns:
             TrainStop: a constructed TrainStop object
         """
+        station = st.Station.by_code(stop_data["id"])
+        if station._phantom:
+            station.name = stop_data["stazione"]
+
         stop_type: TrainStopType
         if stop_data["tipoFermata"] == "P":
             stop_type = TrainStopType.FIRST
@@ -157,7 +161,7 @@ class TrainStop:
         _to_dt = api.ViaggiaTrenoAPI._to_datetime
 
         return cls(
-            station=st.Station.by_code(stop_data["id"]),
+            station=station,
             stop_type=stop_type,
             platform_expected=(
                 stop_data["binarioProgrammatoArrivoDescrizione"]
