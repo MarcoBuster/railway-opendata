@@ -17,6 +17,7 @@ class Train:
         departing_date (datetime.date | None): the departing date
         destination (Station | None): the arriving station
         category (str | None): e.g. REG, FR, IC...
+        client_code (int | None): the train operator
         departed (bool | None): true if the train departed
         cancelled (bool | None): true if the train has been cancelled (partially or totally)
 
@@ -47,6 +48,7 @@ class Train:
         self.departing_date: date = departing_date
         self.destination: st.Station | None = None
         self.category: str | None = None
+        self.client_code: int | None = None
         self.departed: bool | None = None
         self.cancelled: bool | None = None
 
@@ -82,6 +84,7 @@ class Train:
         )
 
         train.category = train_data["categoriaDescrizione"].upper().strip()
+        train.client_code = train_data["codiceCliente"]
         train.departed = not train_data["nonPartito"]
         train.cancelled = train_data["provvedimento"] != 0
         return train

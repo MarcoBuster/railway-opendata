@@ -42,6 +42,7 @@ def test_unfetched_repr_2():
             "codOrigine": "S01700",
             "categoriaDescrizione": "REG",
             "dataPartenzaTreno": 1678662000000,
+            "codiceCliente": 1,
             "nonPartito": False,
             "provvedimento": 0,
         }
