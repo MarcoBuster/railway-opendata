@@ -67,7 +67,7 @@ def main() -> None:
         f"Starting fetching {len(unfetched_trains)} previously unfetched trains"
     )
     _fetched_trains_delete_later: list[int] = list()
-    for unfetched_train_hash in unfetched_trains:
+    for unfetched_train_hash in tqdm(unfetched_trains):
         train = unfetched_trains[unfetched_train_hash]
         train.fetch()
         if train._phantom or train.arrived():
