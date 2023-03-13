@@ -95,7 +95,6 @@ def main() -> None:
                 logging.debug(f"Saved {train.category} {train.number}")
             else:
                 unfetched_trains[hash(train)] = train
-        break
 
     logging.info(f"Retrieved {len(fetched_trains) - fetched_old_n} new trains")
     logging.info(
