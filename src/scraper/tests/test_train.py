@@ -27,6 +27,8 @@ def test_fetch(kind, station_code):
     )
     for train in trains:
         train.fetch()
+        if not train.departed and not train._phantom:
+            assert not train.arrived()
 
 
 def test_unfetched_repr_1():

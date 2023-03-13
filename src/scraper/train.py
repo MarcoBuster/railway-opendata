@@ -151,6 +151,24 @@ class Train:
 
         self._fetched = datetime.now()
 
+    def arrived(self) -> bool | None:
+        """Return True if the train has arrived (no more information to fetch),
+        False otherwise.
+
+        Returns:
+            bool | None: True if the train has arrived, False otherwise.
+            None if the train has never been fetched.
+        """
+        if not self._fetched:
+            return None
+
+        assert isinstance(self.stops, list)
+        arriving_stop: tr_st.TrainStop = next(
+            filter(lambda s: s.stop_type == tr_st.TrainStopType.LAST, self.stops)
+        )
+        assert isinstance(arriving_stop.arrival, tr_st.TrainStopTime)
+        return arriving_stop.arrival.actual is not None
+
     def __repr__(self) -> str:
         if not self._fetched:
             if self.departed and self.category:
