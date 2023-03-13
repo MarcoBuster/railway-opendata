@@ -159,7 +159,7 @@ class Train:
             bool | None: True if the train has arrived, False otherwise.
             None if the train has never been fetched.
         """
-        if not self._fetched:
+        if not self._fetched or self._phantom:
             return None
 
         assert isinstance(self.stops, list)
