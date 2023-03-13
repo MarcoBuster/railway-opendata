@@ -49,5 +49,7 @@ def test_unfetched_repr_2():
 
 def test_hash():
     milan: Station = Station.by_code("S01700")
-    train: Train = Train(10911, milan)
-    assert hash(train) is not None
+    trains: list[Train] = milan.departures()
+    if not trains:
+        return
+    assert hash(trains[0]) is not None

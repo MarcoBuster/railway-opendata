@@ -1,10 +1,11 @@
 import typing as t
-from datetime import datetime
+from datetime import date, datetime
 
 import src.scraper.api as api
 import src.scraper.station as st
 import src.scraper.train_stop as tr_st
 from src import types
+from src.const import TIMEZONE
 
 
 class Train:
@@ -131,7 +132,7 @@ class Train:
             stop: tr_st.TrainStop = tr_st.TrainStop._from_raw_data(raw_stop)
             self.stops.append(stop)
 
-        # There should always be at least two stops: the first and the last.
+        # Assertion: there should always be at least two stops - the first and the last.
         assert len(self.stops) >= 2
 
         self._fetched = datetime.now()
@@ -154,4 +155,42 @@ class Train:
         )
 
     def __hash__(self) -> int:
-        return hash(self.number) + hash(self.origin.code)
+        """Return the hash code.
+
+        Notes:
+            Trains with the same number and origin but departing in different days
+            will have a different hash code.
+        """
+        return hash(self.number) + hash(self.origin.code) + hash(self.date())
+
+    def date(self) -> date:
+        """Return the departing date of the train.
+        Used to distinguish trains of different days.
+
+        Returns:
+            date (datetime.date): the departing date of the train
+
+        Side effects:
+            If the train is not yet _fetched, this method calls fetch().
+            If the train is _phantom, the today's date is returned.
+
+        Notes:
+            To better handle trains having different departing and arriving days
+            (like 'Intercity Notte'), the departing date is the only one considered.
+        """
+
+        if not self._fetched:
+            self.fetch()
+
+        if self._phantom:
+            return datetime.now(tz=TIMEZONE).date()
+
+        # Assertion: if the train is fetched, then it should have stops
+        assert isinstance(self.stops, list)
+        departing_stop: tr_st.TrainStop = next(
+            filter(lambda s: s.stop_type == tr_st.TrainStopType.FIRST, self.stops)
+        )
+
+        # Assertion: if the selected stop is the first, it should have an expected departing time
+        assert isinstance(departing_stop.departure, tr_st.TrainStopTime)
+        return departing_stop.departure.expected.date()
