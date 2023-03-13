@@ -1,5 +1,6 @@
 import itertools
 import typing as t
+from datetime import datetime
 
 import pytest
 
@@ -30,7 +31,7 @@ def test_fetch(kind, station_code):
 
 def test_unfetched_repr_1():
     milan: Station = Station.by_code("S01700")
-    train: Train = Train(10911, milan)
+    train: Train = Train(10911, milan, datetime.now().date())
     assert repr(train) == "Treno [?] ??? 10911 : Milano Centrale [S01700@1] -> ???"
 
 
@@ -40,6 +41,7 @@ def test_unfetched_repr_2():
             "numeroTreno": 10911,
             "codOrigine": "S01700",
             "categoriaDescrizione": "REG",
+            "dataPartenzaTreno": 1678662000000,
             "nonPartito": False,
             "provvedimento": 0,
         }

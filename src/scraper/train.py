@@ -14,6 +14,7 @@ class Train:
     Attributes:
         number (int): the train number
         origin (Station): the departing station
+        departing_date (datetime.date | None): the departing date
         destination (Station | None): the arriving station
         category (str | None): e.g. REG, FR, IC...
         departed (bool | None): true if the train departed
@@ -30,18 +31,20 @@ class Train:
         _fetched (datetime | None): the last time the data has been fetched successfully
     """
 
-    def __init__(self, number: int, origin: st.Station) -> None:
+    def __init__(self, number: int, origin: st.Station, departing_date: date) -> None:
         """Initialize a new train.
 
         Args:
             number (int): the train number
             origin (Station): the departing station
+            departing_date (date): the departing date
 
         Notes:
             Other fields can be set manually or using the fetch() method.
         """
         self.number: int = number
         self.origin: st.Station = origin
+        self.departing_date: date = departing_date
         self.destination: st.Station | None = None
         self.category: str | None = None
         self.departed: bool | None = None
@@ -67,10 +70,17 @@ class Train:
         Returns:
             Train: the initialized train
         """
+        departing_date_midnight = api.ViaggiaTrenoAPI._to_datetime(
+            train_data["dataPartenzaTreno"]
+        )
+        assert isinstance(departing_date_midnight, datetime)
+
         train: Train = cls(
             number=train_data["numeroTreno"],
             origin=st.Station.by_code(train_data["codOrigine"]),
+            departing_date=departing_date_midnight.date(),
         )
+
         train.category = train_data["categoriaDescrizione"].upper().strip()
         train.departed = not train_data["nonPartito"]
         train.cancelled = train_data["provvedimento"] != 0
@@ -83,18 +93,19 @@ class Train:
             Some trains (especially cancelled or partially cancelled ones)
             can't be fetched with this API. If so, self._phantom is set to True.
         """
-        # Calculate midnight of today
-        now: datetime = datetime.now()
-        midnight: datetime = datetime(
-            year=now.year, month=now.month, day=now.day, hour=0, minute=0, second=0
-        )
-
         try:
             raw_details: str = api.ViaggiaTrenoAPI._raw_request(
                 "andamentoTreno",
                 self.origin.code,
                 self.number,
-                int(midnight.timestamp() * 1000),
+                int(
+                    datetime.combine(
+                        self.departing_date.today(),
+                        datetime.min.time(),
+                        tzinfo=TIMEZONE,
+                    ).timestamp()
+                    * 1000
+                ),
             )
             train_data: types.JSONType = api.ViaggiaTrenoAPI._decode_json(raw_details)
         except api.BadRequestException:
@@ -161,36 +172,8 @@ class Train:
             Trains with the same number and origin but departing in different days
             will have a different hash code.
         """
-        return hash(self.number) + hash(self.origin.code) + hash(self.date())
-
-    def date(self) -> date:
-        """Return the departing date of the train.
-        Used to distinguish trains of different days.
-
-        Returns:
-            date (datetime.date): the departing date of the train
-
-        Side effects:
-            If the train is not yet _fetched, this method calls fetch().
-            If the train is _phantom, the today's date is returned.
-
-        Notes:
-            To better handle trains having different departing and arriving days
-            (like 'Intercity Notte'), the departing date is the only one considered.
-        """
-
-        if not self._fetched:
-            self.fetch()
-
-        if self._phantom:
-            return datetime.now(tz=TIMEZONE).date()
-
-        # Assertion: if the train is fetched, then it should have stops
-        assert isinstance(self.stops, list)
-        departing_stop: tr_st.TrainStop = next(
-            filter(lambda s: s.stop_type == tr_st.TrainStopType.FIRST, self.stops)
+        return (
+            hash(self.number)
+            + hash(self.origin.code)
+            + hash(self.departing_date if self.departing_date else date.today())
         )
-
-        # Assertion: if the selected stop is the first, it should have an expected departing time
-        assert isinstance(departing_stop.departure, tr_st.TrainStopTime)
-        return departing_stop.departure.expected.date()
