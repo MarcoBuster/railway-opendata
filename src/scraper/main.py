@@ -69,7 +69,12 @@ def main() -> None:
     _fetched_trains_delete_later: list[int] = list()
     for unfetched_train_hash in tqdm(unfetched_trains):
         train = unfetched_trains[unfetched_train_hash]
-        train.fetch()
+        try:
+            train.fetch()
+        except Exception as e:
+            logging.exception(e)
+            continue
+
         if train._phantom or train.arrived():
             fetched_trains[unfetched_train_hash] = train
             logging.debug(f"Saved previously unfetched {train.category} {train.number}")
@@ -89,7 +94,12 @@ def main() -> None:
             if hash(train) in fetched_trains or hash(train) in unfetched_trains:
                 continue
 
-            train.fetch()
+            try:
+                train.fetch()
+            except Exception as e:
+                logging.exception(e)
+                continue
+
             if train._phantom or train.arrived():
                 fetched_trains[hash(train)] = train
                 logging.debug(f"Saved {train.category} {train.number}")
