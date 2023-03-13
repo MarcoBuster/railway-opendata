@@ -3,7 +3,7 @@ import logging
 import os
 import pathlib
 import typing as t
-from datetime import datetime
+from datetime import date, datetime, timedelta
 
 import jsonpickle
 from tqdm import tqdm
@@ -35,7 +35,9 @@ def save_dataset(file_path: pathlib.Path, dataset: dict[t.Any, t.Any]) -> None:
 
 
 def main() -> None:
-    today_path: pathlib.Path = DATA_DIR / datetime.now(tz=TIMEZONE).strftime("%Y-%m-%d")
+    # Today + ~3 hours
+    today: date = (datetime.now(tz=TIMEZONE) - timedelta(hours=3)).date()
+    today_path: pathlib.Path = DATA_DIR / today.strftime("%Y-%m-%d")
     try:
         os.mkdir(today_path.absolute())
     except FileExistsError:
@@ -85,7 +87,7 @@ def main() -> None:
     for to_delete in _fetched_trains_delete_later:
         del unfetched_trains[to_delete]
 
-    logging.info("Starting fetch departures from all stations")
+    logging.info("Starting fetching departures from all stations")
     for station in tqdm(stations):
         logging.debug(f"Processing {station}")
 
