@@ -74,7 +74,7 @@ def main() -> None:
         try:
             train.fetch()
         except Exception as e:
-            logging.exception(e)
+            logging.exception(e, exc_info=True)
             continue
 
         if train._phantom or train.arrived():
@@ -99,7 +99,7 @@ def main() -> None:
             try:
                 train.fetch()
             except Exception as e:
-                logging.exception(e)
+                logging.exception(e, exc_info=True)
                 continue
 
             if train._phantom or train.arrived():
