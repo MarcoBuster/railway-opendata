@@ -146,7 +146,7 @@ class TrainStop:
         """
         station = st.Station.by_code(stop_data["id"])
         if station._phantom:
-            station.name = stop_data["stazione"]
+            station.name = stop_data["stazione"].title().strip()
 
         stop_type: TrainStopType
         if stop_data["tipoFermata"] == "P":
