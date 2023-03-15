@@ -47,6 +47,7 @@ def test_unfetched_repr_2():
             "codiceCliente": 1,
             "nonPartito": False,
             "provvedimento": 0,
+            "compImgCambiNumerazione": "",
         }
     )
     assert repr(train) == "Treno [D] REG 10911 : Milano Centrale [S01700@1] -> ???"

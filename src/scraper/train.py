@@ -86,7 +86,10 @@ class Train:
         train.category = train_data["categoriaDescrizione"].upper().strip()
         train.client_code = train_data["codiceCliente"]
         train.departed = not train_data["nonPartito"]
-        train.cancelled = train_data["provvedimento"] != 0
+        train.cancelled = (
+            train_data["provvedimento"] != 0
+            or "cancellazione.png" in train_data["compImgCambiNumerazione"]
+        )
         return train
 
     def fetch(self):
@@ -146,6 +149,12 @@ class Train:
             stop: tr_st.TrainStop = tr_st.TrainStop._from_raw_data(raw_stop)
             self.stops.append(stop)
 
+        self._fetched = datetime.now()
+
+        if len(self.stops) == 0 and self.cancelled:
+            self._phantom = True
+            return
+
         # Assertion: there should always be at least two stops - the first and the last.
         assert len(self.stops) >= 2
 
@@ -153,8 +162,6 @@ class Train:
 
         if len(list(filter(lambda s: s.stop_type == tr_st.TrainStopType.LAST, self.stops))) == 0:  # fmt: skip
             self.stops[len(self.stops) - 1].stop_type = tr_st.TrainStopType.LAST
-
-        self._fetched = datetime.now()
 
     def arrived(self) -> bool | None:
         """Return True if the train has arrived (no more information to fetch),
