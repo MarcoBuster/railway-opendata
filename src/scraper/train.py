@@ -1,3 +1,4 @@
+import logging
 import typing as t
 from datetime import date, datetime
 
@@ -29,6 +30,7 @@ class Train:
 
     Meta attributes:
         _phantom (bool): true if no more data can be fetched (e.g. train is cancelled)
+        _trenord_phantom (bool): true if the train is Trenord's and no data can be fetched using its API
         _fetched (datetime | None): the last time the data has been fetched successfully
     """
 
@@ -59,6 +61,7 @@ class Train:
         self.last_detection_time: datetime | None = None
 
         self._phantom: bool = False
+        self._trenord_phantom: bool = False
         self._fetched: datetime | None = None
 
     @classmethod
@@ -123,6 +126,23 @@ class Train:
         except api.BadRequestException:
             # No destination available or destination station not found
             pass
+
+        if self.client_code == api.TrenordAPI.TRENORD_CLIENT_CODE:
+            # Sometimes, ViaggiaTreno returns "trains" operated by Trenord
+            # that don't really operate any passenger services.
+            # On the other hand, such trains are not returned by Trenord API
+            # which is more precise.
+            try:
+                trenord_details_raw = api.TrenordAPI._raw_request("train", self.number)
+                trenord_details = api.ViaggiaTrenoAPI._decode_json(trenord_details_raw)
+                assert len(trenord_details) > 0
+            except AssertionError:
+                self._trenord_phantom = True
+                logging.debug(
+                    f"Trenord train {self.number} is not present in Trenord API. Marked as phantom."
+                )
+            except api.BadRequestException as e:
+                logging.warning(e, exc_info=True)
 
         if (
             (category := train_data["categoria"].upper().strip())

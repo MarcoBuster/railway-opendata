@@ -128,3 +128,54 @@ class ViaggiaTrenoAPI:
                 trains,
             )
         )
+
+
+class TrenordAPI:
+    BASE_URL: str = "https://admin.trenord.it/store-management-api/mia/"
+
+    TRENORD_CLIENT_CODE: int = 63
+
+    # Initialize requests session with auto-retry and exponential backoff
+    _session: requests.Session = requests.Session()
+    _session.mount(
+        "http://",
+        HTTPAdapter(
+            max_retries=Retry(
+                total=10,
+                read=5,
+                status=10,
+                status_forcelist=[403, 500, 502, 503, 504],
+                backoff_factor=0.2,
+            )
+        ),
+    )
+
+    @classmethod
+    def _raw_request(cls, method: str, *parameters: t.Any) -> str:
+        """Perform a HTTP request to Trenord API and return a raw string,
+        if the request has been successful.
+
+        Args:
+            method (str): the method to be called
+            parameters (tuple[str]): a list of parameters
+
+        Raises:
+            BadRequestException: if the response is not ok
+
+        Returns:
+            str: the raw response from the API
+        """
+
+        response: requests.Response = cls._session.get(
+            f"{TrenordAPI.BASE_URL}{method}/"
+            f"{'/'.join(map(lambda p: str(p), parameters))}"
+        )
+
+        if response.status_code != 200 or "Error" in response.text:
+            raise BadRequestException(
+                url=response.url,
+                status_code=response.status_code,
+                response=response.text,
+            )
+
+        return response.text
