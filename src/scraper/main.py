@@ -2,10 +2,10 @@ import itertools
 import logging
 import os
 import pathlib
+import pickle
 import typing as t
 from datetime import date, datetime, timedelta
 
-import jsonpickle
 from tqdm import tqdm
 
 from src.const import TIMEZONE
@@ -16,22 +16,16 @@ DATA_DIR = pathlib.Path("data/")
 
 
 def load_dataset(file_path: pathlib.Path) -> dict[t.Any, t.Any]:
-    os.system(f"touch {file_path.absolute()}")
-    with open(file_path, "r") as f:
-        contents: str = "\n".join(f.readlines())
-        dataset: dict[t.Any, t.Any]
-        if len(contents) > 0:
-            dataset = jsonpickle.loads(contents)  # type: ignore
-        else:
-            dataset = dict()
-    return dataset
+    try:
+        with open(file_path, "rb") as f:
+            return pickle.load(f)
+    except FileNotFoundError:
+        return dict()
 
 
 def save_dataset(file_path: pathlib.Path, dataset: dict[t.Any, t.Any]) -> None:
-    os.system(f"touch {file_path.absolute()}")
-    frozen = jsonpickle.encode(dataset)
-    with open(file_path, "w") as f:
-        f.write(str(frozen))
+    with open(file_path, "wb") as f:
+        pickle.dump(dataset, f)
 
 
 def main() -> None:
@@ -43,9 +37,9 @@ def main() -> None:
     except FileExistsError:
         pass
 
-    station_cache: dict[str, Station] = load_dataset(DATA_DIR / "stations.json")
-    fetched_trains: dict[int, Train] = load_dataset(today_path / "trains.json")
-    unfetched_trains: dict[int, Train] = load_dataset(today_path / "unfetched.json")
+    station_cache: dict[str, Station] = load_dataset(DATA_DIR / "stations.pickle")
+    fetched_trains: dict[int, Train] = load_dataset(today_path / "trains.pickle")
+    unfetched_trains: dict[int, Train] = load_dataset(today_path / "unfetched.pickle")
 
     fetched_old_n = len(fetched_trains)
     unfetched_old_n = len(unfetched_trains)
@@ -114,9 +108,9 @@ def main() -> None:
         f"({(len(unfetched_trains) - unfetched_old_n):+d})"
     )
 
-    save_dataset(DATA_DIR / "stations.json", Station._cache)
-    save_dataset(today_path / "trains.json", fetched_trains)
-    save_dataset(today_path / "unfetched.json", unfetched_trains)
+    save_dataset(DATA_DIR / "stations.pickle", Station._cache)
+    save_dataset(today_path / "trains.pickle", fetched_trains)
+    save_dataset(today_path / "unfetched.pickle", unfetched_trains)
 
     logging.info(f"Trains saved today: {len(fetched_trains)}")
     logging.info(f"Station cache size: {len(Station._cache)}")
