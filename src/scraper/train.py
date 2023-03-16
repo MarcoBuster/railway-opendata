@@ -251,14 +251,16 @@ class Train:
         for i, raw_stop in enumerate(actual_stop_info):
             stop: tr_st.TrainStop
             try:
-                stop = tr_st.TrainStop._from_trenord_raw_data(raw_stop)
+                stop = tr_st.TrainStop._from_trenord_raw_data(
+                    raw_stop, today=self.departing_date
+                )  # type:ignore
             except AssertionError:
                 # The stop - for some unknown reason - has no 'station' information
                 # in Trenord database. Use old stop data.
                 logging.warning(
                     f"Incomplete Trenord stop data for {self.category} {self.number} stop #{i}."
                 )
-                stop = old_stops[i]
+                stop = old_stops[i]  # type: ignore
             self.stops.append(stop)
 
     def arrived(self) -> bool | None:

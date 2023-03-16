@@ -1,4 +1,5 @@
-from datetime import datetime
+import typing as t
+from datetime import date, datetime, timedelta
 from enum import Enum
 
 import src.scraper.api as api
@@ -178,11 +179,14 @@ class TrainStop:
         )
 
     @classmethod
-    def _from_trenord_raw_data(cls, stop_data: dict) -> "TrainStop":
+    def _from_trenord_raw_data(
+        cls, stop_data: dict, today: date = date.today()
+    ) -> t.Union["TrainStop", None]:
         """Initialize a new train stop from data processed by Train.trenord_fetch()
 
         Args:
             stop_data (dict): the data to initialize the class with
+            today (date): the date of the train, used to parse datetimes
 
         Returns:
             TrainStop: a constructed TrainStop object
@@ -192,7 +196,14 @@ class TrainStop:
             if not hhmmss:
                 return None
 
-            return datetime.strptime(hhmmss, "%H:%M:%S")
+            computed: datetime = datetime.strptime(hhmmss, "%H:%M:%S").replace(
+                year=today.year,
+                month=today.month,
+                day=today.day,
+                tzinfo=api.TIMEZONE,
+            )
+            if computed.hour < 4:
+                computed += timedelta(days=1)
 
         if not stop_data["actual_data"]:
             return None
