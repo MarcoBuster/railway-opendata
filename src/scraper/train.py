@@ -138,6 +138,7 @@ class Train:
         ):
             self.category = category
 
+        self.client_code = train_data["codiceCliente"]
         self.departed = not train_data["nonPartito"]
         self.cancelled = train_data["provvedimento"] != 0
 
