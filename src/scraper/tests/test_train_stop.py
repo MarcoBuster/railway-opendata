@@ -40,13 +40,13 @@ def test_stop_time_assumption():
 @pytest.mark.parametrize(
     "data_file, expected_repr",
     [
-        ("train-stop_10860.json", "@ Piacenza 09:07 ~ 09:07 +0.5m [5 ~ 5]"),
-        ("train-stop_3073.json", "@ Arquata Scrivia 17:43 --> 17:44 [5]"),
+        ("train-stop_10860.json", "@ (P) Piacenza 09:07 ~ 09:07 +0.5m [5 ~ 5]"),
+        ("train-stop_3073.json", "@ (F) Arquata Scrivia 17:43 --> 17:44 [5]"),
         (
             "train-stop_555.json",
-            "@ Latina 14:58 ~ 15:01 +3.5m --> 15:00 ~ 15:03 +3.5m [? ~ 2]",
+            "@ (F) Latina 14:58 ~ 15:01 +3.5m --> 15:00 ~ 15:03 +3.5m [? ~ 2]",
         ),
-        ("train-stop_22662.json", "@ Treviglio 17:50 [2 TR Ovest]"),
+        ("train-stop_22662.json", "@ (A) Treviglio 17:50 [2 TR Ovest]"),
     ],
 )
 def test_stop_repr(data_file, expected_repr):

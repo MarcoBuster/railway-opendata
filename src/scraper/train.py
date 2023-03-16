@@ -168,10 +168,21 @@ class Train:
         # Assertion: there should always be at least two stops - the first and the last.
         assert len(self.stops) >= 2
 
-        # ViaggiaTreno bug: sometimes, the last stop is not marked as last
-
+        # API bug: sometimes, the last stop is not marked as last
+        logging.warning(f"{self.category} {self.number} has not a last stop.")
         if len(list(filter(lambda s: s.stop_type == tr_st.TrainStopType.LAST, self.stops))) == 0:  # fmt: skip
-            self.stops[len(self.stops) - 1].stop_type = tr_st.TrainStopType.LAST
+            i = len(self.stops) - 1
+            while i > 0:
+                if self.stops[i] != tr_st.TrainStopType.CANCELLED and isinstance(
+                    self.stops[i].arrival, tr_st.TrainStopTime
+                ):
+                    break
+                i -= 1
+            if i < 2:
+                self.cancelled = True
+                return
+
+            self.stops[i].stop_type = tr_st.TrainStopType.LAST
 
     def fetch_trenord(self) -> None:
         """Try fetch more details about the train, using Trenord API."""
@@ -259,6 +270,9 @@ class Train:
         """
         if not self._fetched or self._phantom:
             return None
+
+        if self.cancelled:
+            return True
 
         assert isinstance(self.stops, list)
         arriving_stop: tr_st.TrainStop = next(

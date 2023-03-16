@@ -213,7 +213,7 @@ class TrainStop:
         if stop_type_raw == "O":
             stop_type = TrainStopType.FIRST
         elif stop_type_raw == "F":
-            stop_type = (TrainStopType.STOP,)
+            stop_type = TrainStopType.STOP
         elif stop_type_raw == "D":
             stop_type = TrainStopType.LAST
         else:
@@ -238,7 +238,7 @@ class TrainStop:
         )
 
     def __repr__(self) -> str:
-        ret = f"@ {self.station.name} "
+        ret = f"@ ({self.stop_type.value}) {self.station.name} "
         if self.stop_type == TrainStopType.FIRST:
             ret += f"{self.departure}"
         elif self.stop_type == TrainStopType.LAST:
