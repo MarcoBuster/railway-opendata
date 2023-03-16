@@ -168,8 +168,8 @@ class Train:
         # Assertion: there should always be at least two stops - the first and the last.
         assert len(self.stops) >= 2
 
-        # API bug: sometimes, the last stop is not marked as last
-        logging.warning(f"{self.category} {self.number} has not a last stop.")
+        # API bug: often, the last stop is not marked as last
+        logging.debug(f"{self.category} {self.number} has not a last stop.")
         if len(list(filter(lambda s: s.stop_type == tr_st.TrainStopType.LAST, self.stops))) == 0:  # fmt: skip
             i = len(self.stops) - 1
             while i > 0:

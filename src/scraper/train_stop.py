@@ -203,7 +203,7 @@ class TrainStop:
         )
         assert isinstance(station_code, str) and len(station_code) > 0
         station = st.Station.by_code(station_code)
-        if station._phantom:
+        if station._phantom and stop_data.get("station", {}).get("station_ori_name"):
             station.name = stop_data["station"]["station_ori_name"].title().strip()
 
         stop_type: TrainStopType
