@@ -27,6 +27,8 @@ class Train:
         delay (int | None): instantaneous delay of the train, based on last detection
         last_detection_place (str | None): place of last detection, it can be a station (or a stop)
         last_detection_time (datetime | None): time of last detection
+        crowding (float | None): crowding level (only for trains operated by Trenord)
+        crowding_source (str | None): source confidence for crowding parameter (only for trains operated by Trenord)
 
     Meta attributes:
         _phantom (bool): true if no more data can be fetched (e.g. train is cancelled)
@@ -59,6 +61,8 @@ class Train:
         self.delay: int | None = None
         self.last_detection_place: str | None = None
         self.last_detection_time: datetime | None = None
+        self.crowding: float | None = None
+        self.crowding_source: float | None = None
 
         self._phantom: bool = False
         self._trenord_phantom: bool = False
@@ -127,23 +131,6 @@ class Train:
             # No destination available or destination station not found
             pass
 
-        if self.client_code == api.TrenordAPI.TRENORD_CLIENT_CODE:
-            # Sometimes, ViaggiaTreno returns "trains" operated by Trenord
-            # that don't really operate any passenger services.
-            # On the other hand, such trains are not returned by Trenord API
-            # which is more precise.
-            try:
-                trenord_details_raw = api.TrenordAPI._raw_request("train", self.number)
-                trenord_details = api.ViaggiaTrenoAPI._decode_json(trenord_details_raw)
-                assert len(trenord_details) > 0
-            except AssertionError:
-                self._trenord_phantom = True
-                logging.debug(
-                    f"Trenord train {self.number} is not present in Trenord API. Marked as phantom."
-                )
-            except api.BadRequestException as e:
-                logging.warning(e, exc_info=True)
-
         if (
             (category := train_data["categoria"].upper().strip())
             and len(category) > 0
@@ -171,6 +158,9 @@ class Train:
 
         self._fetched = datetime.now()
 
+        if self.client_code == api.TrenordAPI.TRENORD_CLIENT_CODE:
+            self.fetch_trenord()
+
         if len(self.stops) == 0 and self.cancelled:
             self._phantom = True
             return
@@ -182,6 +172,82 @@ class Train:
 
         if len(list(filter(lambda s: s.stop_type == tr_st.TrainStopType.LAST, self.stops))) == 0:  # fmt: skip
             self.stops[len(self.stops) - 1].stop_type = tr_st.TrainStopType.LAST
+
+    def fetch_trenord(self) -> None:
+        """Try fetch more details about the train, using Trenord API."""
+
+        if (
+            self.client_code != api.TrenordAPI.TRENORD_CLIENT_CODE
+            or self._trenord_phantom
+        ):
+            return
+
+        assert self._fetched
+
+        # Sometimes, ViaggiaTreno returns "trains" operated by Trenord
+        # that don't really operate any passenger services.
+        # On the other hand, such trains are not returned by Trenord API
+        # which is more precise.
+        try:
+            trenord_details_raw = api.TrenordAPI._raw_request("train", self.number)
+            trenord_details = api.ViaggiaTrenoAPI._decode_json(trenord_details_raw)
+            assert len(trenord_details) > 0
+        except AssertionError:
+            self._trenord_phantom = True
+            logging.debug(
+                f"Trenord train {self.number} is not present in Trenord API. Marked as phantom."
+            )
+            return
+        except api.BadRequestException as e:
+            logging.warning(e, exc_info=True)
+            return
+
+        # Trenord returns multiple trains and possible journeys.
+        # This algorithm selects the correct train actual data.
+        actual_train_info: types.JSONType | None = None
+        actual_stop_info: types.JSONType | None = None
+        for data in trenord_details:
+            for journey in data.get("journey_list", []):
+                train_info: types.JSONType = journey["train"]
+                stop_info: types.JSONType = journey["pass_list"]
+
+                if train_info["date"] != datetime.now().strftime("%Y%m%d"):
+                    continue
+
+                if len(stop_info) == 0:
+                    continue
+
+                if not any([stop.get("actual_data") for stop in stop_info]):
+                    continue
+
+                actual_train_info = train_info
+                actual_stop_info = stop_info
+                break
+
+        if not actual_train_info or not actual_stop_info:
+            logging.warning(
+                f"Can't update info about {self.category} {self.number} using Trenord API: no actual data found."
+            )
+            return
+
+        self.departed = bool(actual_train_info.get("actual_time", False))
+        self.crowding = actual_train_info.get("crowding", {}).get("percentage", None)
+        self.crowding_source = actual_train_info.get("crowding", {}).get("source", None)
+
+        old_stops = self.stops
+        self.stops = list()
+        for i, raw_stop in enumerate(actual_stop_info):
+            stop: tr_st.TrainStop
+            try:
+                stop = tr_st.TrainStop._from_trenord_raw_data(raw_stop)
+            except AssertionError:
+                # The stop - for some unknown reason - has no 'station' information
+                # in Trenord database. Use old stop data.
+                logging.warning(
+                    f"Incomplete Trenord stop data for {self.category} {self.number} stop #{i}."
+                )
+                stop = old_stops[i]
+            self.stops.append(stop)
 
     def arrived(self) -> bool | None:
         """Return True if the train has arrived (no more information to fetch),
@@ -215,6 +281,7 @@ class Train:
         return (
             f"Treno [{'D' if self.departed else 'S'}{'X' if self.cancelled else ''}] "
             f"{self.category} {self.number} : {self.origin} -> {self.destination}"
+            f"{f' ({round(self.crowding, 2)}%)' if self.crowding else ''}"
             f"\n{chr(10).join([str(stop) for stop in self.stops])}"
         )
 

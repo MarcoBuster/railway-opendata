@@ -177,6 +177,66 @@ class TrainStop:
             departure_actual=_to_dt(stop_data["partenzaReale"]),
         )
 
+    @classmethod
+    def _from_trenord_raw_data(cls, stop_data: dict) -> "TrainStop":
+        """Initialize a new train stop from data processed by Train.trenord_fetch()
+
+        Args:
+            stop_data (dict): the data to initialize the class with
+
+        Returns:
+            TrainStop: a constructed TrainStop object
+        """
+
+        def _hhmmss_to_dt(hhmmss: str | None) -> datetime | None:
+            if not hhmmss:
+                return None
+
+            return datetime.strptime(hhmmss, "%H:%M:%S")
+
+        if not stop_data["actual_data"]:
+            return None
+
+        station_code: str | None = (
+            stop_data["station"].get("station_id")
+            or stop_data["actual_data"]["actual_station_mir"]
+        )
+        assert isinstance(station_code, str) and len(station_code) > 0
+        station = st.Station.by_code(station_code)
+        if station._phantom:
+            station.name = stop_data["station"]["station_ori_name"].title().strip()
+
+        stop_type: TrainStopType
+        stop_type_raw = (
+            stop_data["actual_data"].get("actual_type", None) or stop_data["type"]
+        )
+        if stop_type_raw == "O":
+            stop_type = TrainStopType.FIRST
+        elif stop_type_raw == "F":
+            stop_type = (TrainStopType.STOP,)
+        elif stop_type_raw == "D":
+            stop_type = TrainStopType.LAST
+        else:
+            stop_type = TrainStopType.CANCELLED
+
+        if stop_data["cancelled"]:
+            stop_type = TrainStopType.CANCELLED
+
+        return cls(
+            station=station,
+            stop_type=stop_type,
+            platform_expected=stop_data.get("platform", None),
+            platform_actual=None,
+            arrival_expected=_hhmmss_to_dt(stop_data.get("arr_time")),
+            arrival_actual=_hhmmss_to_dt(
+                stop_data["actual_data"].get("arr_actual_time")
+            ),
+            departure_expected=_hhmmss_to_dt(stop_data.get("dep_time")),
+            departure_actual=_hhmmss_to_dt(
+                stop_data["actual_data"].get("dep_actual_time")
+            ),
+        )
+
     def __repr__(self) -> str:
         ret = f"@ {self.station.name} "
         if self.stop_type == TrainStopType.FIRST:
