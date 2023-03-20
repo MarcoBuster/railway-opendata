@@ -193,6 +193,14 @@ class TrainStop:
         """
 
         def _hhmmss_to_dt(hhmmss: str | None) -> datetime | None:
+            """Parse and return a Trenord time string into a datetime object.
+
+            Args:
+                hhmmss (str | None): the string to parse
+
+            Returns:
+                datetime | None: the parsed datetime object.
+            """
             if not hhmmss:
                 return None
 
@@ -204,6 +212,7 @@ class TrainStop:
             )
             if computed.hour < 4:
                 computed += timedelta(days=1)
+            return computed
 
         if not stop_data["actual_data"]:
             return None
