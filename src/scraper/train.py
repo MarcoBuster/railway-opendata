@@ -7,6 +7,7 @@ import src.scraper.station as st
 import src.scraper.train_stop as tr_st
 from src import types
 from src.const import TIMEZONE
+from src.scraper.exceptions import BadRequestException
 
 
 class Train:
@@ -121,13 +122,13 @@ class Train:
                 ),
             )
             train_data: types.JSONType = api.ViaggiaTrenoAPI._decode_json(raw_details)
-        except api.BadRequestException:
+        except BadRequestException:
             self._phantom = True
             return
 
         try:
             self.destination = st.Station.by_code(train_data["idDestinazione"])
-        except api.BadRequestException:
+        except BadRequestException:
             # No destination available or destination station not found
             pass
 
@@ -210,7 +211,7 @@ class Train:
                 f"Trenord train {self.number} is not present in Trenord API. Marked as phantom."
             )
             return
-        except api.BadRequestException as e:
+        except BadRequestException as e:
             logging.warning(e, exc_info=True)
             return
 

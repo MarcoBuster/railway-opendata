@@ -8,25 +8,7 @@ from requests.adapters import HTTPAdapter, Retry
 import src.scraper.train as tr
 from src import types
 from src.const import TIMEZONE
-
-
-class BadRequestException(Exception):
-    """Bad request to ViaggiaTreno API."""
-
-    def __init__(
-        self, url: str, status_code: int, response: str, *args: object
-    ) -> None:
-        """Creates a BadRequestException.
-
-        Args:
-            url (str): the request URL
-            status_code (int): the response status code
-            response (str): the response data
-        """
-        self.url = url
-        self.status_code = status_code
-        self.response = response
-        super().__init__(*args)
+from src.scraper.exceptions import BadRequestException
 
 
 class ViaggiaTrenoAPI:

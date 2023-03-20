@@ -4,6 +4,7 @@ import typing as t
 import src.scraper.api as api
 import src.scraper.train as tr
 from src import types
+from src.scraper.exceptions import BadRequestException
 
 
 class Station:
@@ -97,7 +98,7 @@ class Station:
         if station_code not in cls._cache:
             try:
                 region_code: int = cls._region_code(station_code)
-            except api.BadRequestException as e:
+            except BadRequestException as e:
                 if e.status_code != 204:
                     raise e
 
@@ -109,7 +110,7 @@ class Station:
                 )
                 raw_data: types.JSONType = api.ViaggiaTrenoAPI._decode_json(response)
                 cls._cache[station_code] = cls._from_raw(raw_data)
-            except api.BadRequestException as e:
+            except BadRequestException as e:
                 if e.status_code != 204:
                     raise e
 
