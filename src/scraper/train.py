@@ -7,7 +7,7 @@ import src.scraper.station as st
 import src.scraper.train_stop as tr_st
 from src import types
 from src.const import TIMEZONE
-from src.scraper.exceptions import BadRequestException
+from src.scraper.exceptions import *
 
 
 class Train:
@@ -167,8 +167,13 @@ class Train:
             self._phantom = True
             return
 
-        # Assertion: there should always be at least two stops - the first and the last.
-        assert len(self.stops) >= 2
+        # Assertion: a train should always have at least two stops - the first and the last.
+        try:
+            assert len(self.stops) >= 2
+        except AssertionError:
+            # just give up...
+            self._phantom = True
+            return
 
         # API bug: often, the last stop is not marked as last
         if len(list(filter(lambda s: s.stop_type == tr_st.TrainStopType.LAST, self.stops))) == 0:  # fmt: skip
@@ -254,7 +259,7 @@ class Train:
                 stop = tr_st.TrainStop._from_trenord_raw_data(
                     raw_stop, today=self.departing_date
                 )  # type:ignore
-            except AssertionError:
+            except IncompleteTrenordStopDataException:
                 # The stop - for some unknown reason - has no 'station' information
                 # in Trenord database. Use old stop data.
                 logging.warning(

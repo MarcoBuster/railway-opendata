@@ -4,6 +4,7 @@ from enum import Enum
 
 import src.scraper.api as api
 import src.scraper.station as st
+from src.scraper.exceptions import IncompleteTrenordStopDataException
 
 
 class TrainStopType(Enum):
@@ -221,7 +222,11 @@ class TrainStop:
             stop_data["station"].get("station_id")
             or stop_data["actual_data"]["actual_station_mir"]
         )
-        assert isinstance(station_code, str) and len(station_code) > 0
+        try:
+            assert isinstance(station_code, str) and len(station_code) > 0
+        except AssertionError:
+            raise IncompleteTrenordStopDataException
+
         station = st.Station.by_code(station_code)
         if station._phantom and stop_data.get("station", {}).get("station_ori_name"):
             station.name = stop_data["station"]["station_ori_name"].title().strip()

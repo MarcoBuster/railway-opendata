@@ -15,3 +15,8 @@ class BadRequestException(Exception):
         self.status_code = status_code
         self.response = response
         super().__init__(*args)
+
+
+class IncompleteTrenordStopDataException(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
