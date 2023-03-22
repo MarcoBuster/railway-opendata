@@ -29,7 +29,12 @@ def test_fetch(kind, station_code):
     )
     for train in trains:
         train.fetch()
-        if not train.departed and not train._phantom:
+        if (
+            not train.departed
+            and not train._phantom
+            and not train._trenord_phantom
+            and not train.cancelled
+        ):
             assert not train.arrived()
 
 
