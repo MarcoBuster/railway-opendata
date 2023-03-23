@@ -57,7 +57,7 @@ def load_file(file: Path) -> dict[int, Train]:
     return data
 
 
-def to_csv(data: dict[int, Train], output_file: Path):
+def to_csv(data: dict[int, Train], output_file: Path) -> None:
     """Convert to CSV train data, one row per stop.
 
     Args:

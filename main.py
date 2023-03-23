@@ -13,7 +13,7 @@ if not hashseed or hashseed != "0":
 import argparse
 
 import src.scraper.main as scraper
-from src import train_extractor
+from src import station_extractor, train_extractor
 
 parser = argparse.ArgumentParser(
     prog="train-scraper",
@@ -93,6 +93,9 @@ def main():
 
     if args.subcommand == "train-extractor":
         train_extractor.main(args)
+
+    if args.subcommand == "station-extractor":
+        station_extractor.main(args)
 
 
 if __name__ == "__main__":
