@@ -65,9 +65,7 @@ s_extractor.add_argument(
 s_extractor.add_argument(
     "-f",
     default="csv",
-    choices=[
-        "csv",
-    ],
+    choices=["csv", "geojson"],
     help="output file format",
     dest="format",
 )
