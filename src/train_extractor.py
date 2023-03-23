@@ -5,6 +5,7 @@ import pickle
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
+from src.const import TIMEZONE
 from src.scraper.train import Train
 from src.scraper.train_stop import TrainStopTime
 from src.utils import parse_input_format_output_args
@@ -36,6 +37,7 @@ def load_file(file: Path) -> dict[int, Train]:
                 year=dep_date.year,
                 month=dep_date.month,
                 day=dep_date.day,
+                tzinfo=TIMEZONE,
             )
 
             if dt.hour < 4:
@@ -119,17 +121,17 @@ def to_csv(data: dict[int, Train], output_file: Path) -> None:
                     stop.station.code,
                     stop.stop_type.value,
                     stop.platform_actual or stop.platform_expected,
-                    stop.arrival.expected.timestamp()
+                    stop.arrival.expected.isoformat()
                     if stop.arrival and stop.arrival.expected
                     else None,
-                    stop.arrival.actual.timestamp()
+                    stop.arrival.actual.isoformat()
                     if stop.arrival and stop.arrival.actual
                     else None,
                     stop.arrival.delay() if stop.arrival else None,
-                    stop.departure.expected.timestamp()
+                    stop.departure.expected.isoformat()
                     if stop.departure and stop.departure.expected
                     else None,
-                    stop.departure.actual.timestamp()
+                    stop.departure.actual.isoformat()
                     if stop.departure and stop.departure.actual
                     else None,
                     stop.departure.delay() if stop.departure else None,
