@@ -2,19 +2,12 @@ import argparse
 import csv
 import hashlib
 import pickle
-import typing as t
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from src.scraper.train import Train
 from src.scraper.train_stop import TrainStopTime
-
-
-def _arg_or_default(args: argparse.Namespace, field: str, default: t.Any) -> t.Any:
-    if not hasattr(args, field) or not getattr(args, field):
-        return default
-
-    return getattr(args, field)
+from src.utils import parse_input_format_output_args
 
 
 def load_file(file: Path) -> dict[int, Train]:
@@ -148,15 +141,7 @@ def to_csv(data: dict[int, Train], output_file: Path):
 
 
 def main(args: argparse.Namespace):
-    input_f: Path = Path(args.pickle_file)
-    format: str = _arg_or_default(args, "format", "csv")
-    output_f: Path = Path(
-        _arg_or_default(
-            args,
-            "output_file",
-            input_f.parents[0] / input_f.name.replace("pickle", format),
-        )
-    )
+    input_f, output_f, format = parse_input_format_output_args(args)
 
     data: dict[int, Train] = load_file(input_f)
     if format == "csv":

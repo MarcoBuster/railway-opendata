@@ -13,7 +13,7 @@ if not hashseed or hashseed != "0":
 import argparse
 
 import src.scraper.main as scraper
-from src import extractor
+from src import train_extractor
 
 parser = argparse.ArgumentParser(
     prog="train-scraper",
@@ -52,6 +52,32 @@ t_extractor.add_argument(
     dest="output_file",
 )
 
+# Station extractor arguments
+s_extractor = subparsers.add_parser(
+    "station-extractor",
+    help="convert scraped station data",
+)
+s_extractor.add_argument(
+    "pickle_file",
+    help=".pickle file to parse",
+    metavar="PICKLE_FILE",
+)
+s_extractor.add_argument(
+    "-f",
+    default="csv",
+    choices=[
+        "csv",
+    ],
+    help="output file format",
+    dest="format",
+)
+s_extractor.add_argument(
+    "-o",
+    help="output file name",
+    metavar="OUTPUT_FILE",
+    dest="output_file",
+)
+
 
 def main():
     args: argparse.Namespace = parser.parse_args()
@@ -66,7 +92,7 @@ def main():
         scraper.main()
 
     if args.subcommand == "train-extractor":
-        extractor.main(args)
+        train_extractor.main(args)
 
 
 if __name__ == "__main__":
