@@ -12,6 +12,7 @@ if not hashseed or hashseed != "0":
 
 import argparse
 
+import src.analysis.main as analysis
 import src.scraper.main as scraper
 from src import station_extractor, train_extractor
 
@@ -76,6 +77,13 @@ s_extractor.add_argument(
     dest="output_file",
 )
 
+analysis.register_args(
+    subparsers.add_parser(
+        "analyze",
+        help="data analyzer and visualizer",
+    )
+)
+
 
 def main():
     args: argparse.Namespace = parser.parse_args()
@@ -94,6 +102,9 @@ def main():
 
     if args.subcommand == "station-extractor":
         station_extractor.main(args)
+
+    if args.subcommand == "analyze":
+        analysis.main(args)
 
 
 if __name__ == "__main__":
