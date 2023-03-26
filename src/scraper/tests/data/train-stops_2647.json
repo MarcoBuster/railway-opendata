@@ -1,0 +1,162 @@
+[
+  {
+    "dep_time": "23:25:00",
+    "station": {
+      "station_id": "S01700",
+      "station_ori_name": "MILANO CENTRALE"
+    },
+    "type": "O",
+    "is_journey": true,
+    "cancelled": false,
+    "actual_data": {
+      "dep_actual_time": "23:27:00"
+    }
+  },
+  {
+    "arr_time": "23:31:00",
+    "dep_time": "23:33:00",
+    "station": {
+      "station_id": "S01701",
+      "station_ori_name": "MILANO LAMBRATE"
+    },
+    "type": "F",
+    "is_journey": true,
+    "cancelled": false,
+    "actual_data": {
+      "arr_actual_time": "23:33:00",
+      "dep_actual_time": "23:35:00"
+    }
+  },
+  {
+    "arr_time": "23:39:00",
+    "dep_time": "23:40:00",
+    "station": {
+      "station_id": "S01703",
+      "station_ori_name": "PIOLTELLO LIMITO"
+    },
+    "type": "F",
+    "is_journey": true,
+    "cancelled": false,
+    "actual_data": {
+      "arr_actual_time": "23:40:00",
+      "dep_actual_time": "23:43:00"
+    }
+  },
+  {
+    "arr_time": "23:54:00",
+    "dep_time": "23:56:00",
+    "station": {
+      "station_id": "S01708",
+      "station_ori_name": "TREVIGLIO"
+    },
+    "type": "F",
+    "is_journey": true,
+    "cancelled": false,
+    "actual_data": {
+      "arr_actual_time": "23:54:00",
+      "dep_actual_time": "23:56:00"
+    }
+  },
+  {
+    "arr_time": "00:04:00",
+    "dep_time": "00:05:00",
+    "station": {
+      "station_id": "S01711",
+      "station_ori_name": "ROMANO"
+    },
+    "type": "F",
+    "is_journey": true,
+    "cancelled": false,
+    "actual_data": {
+      "arr_actual_time": "00:03:00",
+      "dep_actual_time": "00:05:00"
+    }
+  },
+  {
+    "arr_time": "00:13:00",
+    "dep_time": "00:14:00",
+    "station": {
+      "station_id": "S01713",
+      "station_ori_name": "CHIARI"
+    },
+    "type": "F",
+    "is_journey": true,
+    "cancelled": false,
+    "actual_data": {
+      "dep_actual_time": "00:15:00"
+    }
+  },
+  {
+    "arr_time": "00:19:00",
+    "dep_time": "00:20:00",
+    "station": {
+      "station_id": "S01714",
+      "station_ori_name": "ROVATO"
+    },
+    "type": "F",
+    "is_journey": true,
+    "cancelled": false,
+    "actual_data": {
+      "arr_actual_time": "00:18:00",
+      "dep_actual_time": "00:20:00"
+    }
+  },
+  {
+    "arr_time": "00:31:00",
+    "dep_time": "00:33:00",
+    "station": {
+      "station_id": "S09999",
+      "station_ori_name": "BRESCIA"
+    },
+    "type": "F",
+    "is_journey": true,
+    "cancelled": false,
+    "actual_data": {
+      "arr_actual_time": "00:29:00",
+      "dep_actual_time": "00:33:00"
+    }
+  },
+  {
+    "arr_time": "00:48:00",
+    "dep_time": "00:49:00",
+    "station": {
+      "station_id": "S02084",
+      "station_ori_name": "DESENZANO DEL GARDA-SIRMIONE"
+    },
+    "type": "F",
+    "is_journey": true,
+    "cancelled": false,
+    "actual_data": {
+      "arr_actual_time": "00:48:00",
+      "dep_actual_time": "00:50:00"
+    }
+  },
+  {
+    "arr_time": "00:57:00",
+    "dep_time": "00:58:00",
+    "station": {
+      "station_id": "S02088",
+      "station_ori_name": "PESCHIERA DEL GARDA"
+    },
+    "type": "F",
+    "is_journey": true,
+    "cancelled": false,
+    "actual_data": {
+      "arr_actual_time": "00:56:00",
+      "dep_actual_time": "00:58:00"
+    }
+  },
+  {
+    "arr_time": "01:17:00",
+    "station": {
+      "station_id": "S02430",
+      "station_ori_name": "VERONA PORTA NUOVA"
+    },
+    "type": "D",
+    "is_journey": true,
+    "cancelled": false,
+    "actual_data": {
+      "arr_actual_time": "01:17:00"
+    }
+  }
+]

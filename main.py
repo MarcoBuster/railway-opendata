@@ -1,16 +1,6 @@
-import logging
-import os
-import sys
-
-hashseed = os.getenv("PYTHONHASHSEED")
-if not hashseed or hashseed != "0":
-    logging.critical(
-        "Hash seed randomization is not disabled. "
-        "Please disable it by setting PYTHONHASHSEED=0 environment variable"
-    )
-    sys.exit(1)
-
 import argparse
+import logging
+import sys
 
 import src.analysis.main as analysis
 import src.scraper.main as scraper
