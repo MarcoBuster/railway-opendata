@@ -3,6 +3,7 @@ import logging
 import os
 import pathlib
 import pickle
+import sys
 import typing as t
 from datetime import date, datetime, timedelta
 
@@ -29,6 +30,14 @@ def save_dataset(file_path: pathlib.Path, dataset: dict[t.Any, t.Any]) -> None:
 
 
 def main() -> None:
+    hashseed = os.getenv("PYTHONHASHSEED")
+    if not hashseed or hashseed != "0":
+        logging.critical(
+            "Hash seed randomization is not disabled. "
+            "Please disable it by setting PYTHONHASHSEED=0 environment variable"
+        )
+        sys.exit(1)
+
     # Today + ~3 hours
     today: date = (datetime.now(tz=TIMEZONE) - timedelta(hours=3)).date()
     today_path: pathlib.Path = DATA_DIR / today.strftime("%Y-%m-%d")
