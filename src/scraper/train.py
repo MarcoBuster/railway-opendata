@@ -265,7 +265,14 @@ class Train:
                 logging.warning(
                     f"Incomplete Trenord stop data for {self.category} {self.number} stop #{i}."
                 )
-                stop = old_stops[i]  # type: ignore
+                try:
+                    stop = old_stops[i]  # type: ignore
+                except IndexError:
+                    logging.warning(
+                        "Can't find corresponding Trenitalia stop data "
+                        "to the incomplete Trenord one."
+                    )
+                    break
             self.stops.append(stop)
 
         self._fix_intraday_datetimes()
