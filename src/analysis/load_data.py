@@ -27,6 +27,7 @@ def read_train_csv(file: Path) -> pd.DataFrame:
         infer_datetime_format=True,
     )
     df.client_code = df.client_code.apply(RailwayCompany.from_code)  # type: ignore
+    df.day = df.day.apply(lambda dt: dt.date())
     return df.loc[(df.phantom == False) & (df.trenord_phantom == False)].drop(
         ["phantom", "trenord_phantom"], axis=1
     )

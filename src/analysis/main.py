@@ -1,7 +1,14 @@
 import argparse
+import logging
+import pathlib
 from datetime import datetime
 
+import pandas as pd
 from dateparser import parse
+from tqdm import tqdm
+
+from src.analysis.filter import date_filter
+from src.analysis.load_data import read_station_csv, read_train_csv
 
 
 def register_args(parser: argparse.ArgumentParser):
@@ -37,4 +44,24 @@ def main(args: argparse.Namespace):
     if args.end_date and not end_date:
         raise argparse.ArgumentTypeError("invalid end_date")
 
-    raise NotImplementedError()
+    # Load dataset
+    df = pd.DataFrame()
+    logging.info("Loading datasets...")
+    for train_csv in (
+        tqdm(args.trains_csv)
+        if logging.root.getEffectiveLevel() > logging.DEBUG
+        else args.trains_csv
+    ):
+        path = pathlib.Path(train_csv)
+        train_df: pd.DataFrame = read_train_csv(pathlib.Path(train_csv))
+        df = pd.concat([df, train_df], axis=0)
+        logging.debug(f"Loaded {len(train_df)} data points @ {path}")
+
+    stations: pd.DataFrame = read_station_csv(args.station_csv)
+    original_length: int = len(df)
+
+    # Apply filters
+    df = date_filter(df, start_date, end_date)
+
+    logging.info(f"Loaded {len(df)} data points ({original_length} before filtering)")
+    print(df)
