@@ -1,11 +1,17 @@
 import itertools
+import json
+import pathlib
 import typing as t
-from datetime import datetime
+from datetime import date, datetime
 
 import pytest
 
+from src import types
 from src.scraper.station import Station
 from src.scraper.train import Train
+from src.scraper.train_stop import TrainStop, TrainStopTime
+
+DATA_DIR = pathlib.Path("src/scraper/tests/data")
 
 
 @pytest.mark.parametrize(
@@ -66,3 +72,45 @@ def test_hash():
     if not trains:
         return
     assert hash(trains[0]) is not None
+
+
+def test_fix_intraday_datetimes():
+    milan: Station = Station.by_code("S01700")
+    mock_train: Train = Train(2647, milan, date(year=2023, month=3, day=25))
+
+    mock_train.category = "REG"
+    mock_train.destination = Station.by_code("S02430")
+    mock_train._phantom = False
+    mock_train._trenord_phantom = False
+    mock_train.cancelled = False
+    mock_train._fetched = datetime.now()
+
+    with open(DATA_DIR / "train-stops_2647.json") as f:
+        stops: list[types.JSONType] = json.load(f)
+
+    mock_train.stops = list()
+    for stop in stops:
+        fetched_stop = TrainStop._from_trenord_raw_data(
+            stop, day=mock_train.departing_date
+        )
+        if fetched_stop:
+            mock_train.stops.append(fetched_stop)
+
+    assert len(mock_train.stops) == 11
+
+    mock_train._fix_intraday_datetimes()
+
+    for i, stop in enumerate(mock_train.stops):
+        expected_day = 25 if i < 4 else 26
+
+        if i != 0:
+            assert isinstance(stop.arrival, TrainStopTime)
+            assert stop.arrival.expected.day == expected_day
+            if isinstance(stop.arrival.actual, datetime):
+                assert stop.arrival.actual.day == expected_day
+
+        if i != len(mock_train.stops) - 1:
+            assert isinstance(stop.departure, TrainStopTime)
+            assert stop.departure.expected.day == expected_day
+            if isinstance(stop.departure.actual, datetime):
+                assert stop.departure.actual.day == expected_day

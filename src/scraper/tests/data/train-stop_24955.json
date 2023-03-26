@@ -1,0 +1,21 @@
+{
+  "dep_time": "14:35:00",
+  "station": {
+    "station_id": "S01933",
+    "station_ori_name": "SARONNO"
+  },
+  "type": "O",
+  "is_journey": true,
+  "actual_data": {
+    "actual_station_mir": "S01933",
+    "actual_station_name": "SARONNO",
+    "actual_train_id": "124955",
+    "actual_type": "O",
+    "dep_actual_time": "14:37:34",
+    "dep_delay_actual": 2
+  },
+  "cancelled": false,
+  "platform": "7",
+  "pass_count": 1,
+  "date": "20230325"
+}

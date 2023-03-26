@@ -2,7 +2,7 @@ import argparse
 import csv
 import hashlib
 import pickle
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 from pathlib import Path
 
 from src.const import TIMEZONE
@@ -39,10 +39,6 @@ def load_file(file: Path) -> dict[int, Train]:
                 day=dep_date.day,
                 tzinfo=TIMEZONE,
             )
-
-            if dt.hour < 4:
-                dt += timedelta(days=1)
-
         return dt
 
     for train_h in data:
@@ -55,6 +51,9 @@ def load_file(file: Path) -> dict[int, Train]:
             if isinstance(stop.departure, TrainStopTime):
                 stop.departure.actual = _fix_datetime(train, stop.departure.actual)
                 stop.departure.expected = _fix_datetime(train, stop.departure.expected)  # type: ignore
+
+        if train.client_code == 63:
+            train._fix_intraday_datetimes()
 
     return data
 

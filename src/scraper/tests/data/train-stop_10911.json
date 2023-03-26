@@ -1,0 +1,21 @@
+{
+  "arr_time": "01:35:00",
+  "station": {
+    "station_id": "S09999",
+    "station_ori_name": "BRESCIA"
+  },
+  "type": "D",
+  "is_journey": true,
+  "actual_data": {
+    "actual_station_mir": "S09999",
+    "actual_station_name": "BRESCIA",
+    "actual_train_id": "110911",
+    "actual_type": "D",
+    "arr_delay_actual": 1,
+    "arr_actual_time": "01:36:00"
+  },
+  "cancelled": false,
+  "platform": "3",
+  "pass_count": 23,
+  "date": "20230325"
+}

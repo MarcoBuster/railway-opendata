@@ -1,0 +1,24 @@
+{
+  "arr_time": "14:10:30",
+  "dep_time": "14:11:30",
+  "station": {
+    "station_id": "S01739",
+    "station_ori_name": "VARESE CASBENO"
+  },
+  "type": "F",
+  "is_journey": true,
+  "actual_data": {
+    "actual_station_mir": "S01739",
+    "actual_station_name": "VARESE CASBENO",
+    "actual_train_id": "1900052",
+    "actual_type": "F",
+    "dep_actual_time": "14:17:43",
+    "arr_delay_actual": 5,
+    "arr_actual_time": "14:15:42",
+    "dep_delay_actual": 6
+  },
+  "cancelled": false,
+  "platform": "2",
+  "pass_count": 9,
+  "date": "20230325"
+}

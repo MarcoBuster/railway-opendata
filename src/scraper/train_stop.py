@@ -181,7 +181,7 @@ class TrainStop:
 
     @classmethod
     def _from_trenord_raw_data(
-        cls, stop_data: dict, today: date = date.today()
+        cls, stop_data: dict, day: date
     ) -> t.Union["TrainStop", None]:
         """Initialize a new train stop from data processed by Train.trenord_fetch()
 
@@ -190,7 +190,8 @@ class TrainStop:
             today (date): the date of the train, used to parse datetimes
 
         Returns:
-            TrainStop: a constructed TrainStop object
+            TrainStop | None: a constructed TrainStop object,
+            or None if there isn't actual data
         """
 
         def _hhmmss_to_dt(hhmmss: str | None) -> datetime | None:
@@ -205,15 +206,12 @@ class TrainStop:
             if not hhmmss:
                 return None
 
-            computed: datetime = datetime.strptime(hhmmss, "%H:%M:%S").replace(
-                year=today.year,
-                month=today.month,
-                day=today.day,
+            return datetime.strptime(hhmmss, "%H:%M:%S").replace(
+                year=day.year,
+                month=day.month,
+                day=day.day,
                 tzinfo=api.TIMEZONE,
             )
-            if computed.hour < 4:
-                computed += timedelta(days=1)
-            return computed
 
         if not stop_data["actual_data"]:
             return None

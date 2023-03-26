@@ -55,3 +55,24 @@ def test_stop_repr(data_file, expected_repr):
 
     stop: TrainStop = TrainStop._from_raw_data(stop_data=data)
     assert repr(stop) == expected_repr
+
+
+@pytest.mark.parametrize(
+    "data_file, expected_repr",
+    [
+        ("train-stop_24955.json", "@ (P) Saronno 14:35 ~ 14:37 +2.6m [7]"),
+        (
+            "train-stop_52.json",
+            "@ (F) Varese Casbeno 14:10 ~ 14:15 +5.2m --> 14:11 ~ 14:17 +6.2m [2]",
+        ),
+        ("train-stop_10911.json", "@ (A) Brescia 01:35 ~ 01:36 +1.0m [3]"),
+    ],
+)
+def test_stop_trenord(data_file, expected_repr):
+    with open(DATA_DIR / data_file, "r") as f:
+        data: types.JSONType = json.load(f)
+
+    stop: TrainStop | None = TrainStop._from_trenord_raw_data(
+        stop_data=data, day=datetime.now().date()
+    )
+    assert repr(stop) == expected_repr

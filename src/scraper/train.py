@@ -1,12 +1,12 @@
 import logging
 import typing as t
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 import src.scraper.api as api
 import src.scraper.station as st
 import src.scraper.train_stop as tr_st
 from src import types
-from src.const import TIMEZONE
+from src.const import INTRADAY_SPLIT_HOUR, TIMEZONE
 from src.scraper.exceptions import *
 
 
@@ -114,7 +114,7 @@ class Train:
                 self.number,
                 int(
                     datetime.combine(
-                        self.departing_date.today(),
+                        self.departing_date,
                         datetime.min.time(),
                         tzinfo=TIMEZONE,
                     ).timestamp()
@@ -257,7 +257,7 @@ class Train:
             stop: tr_st.TrainStop
             try:
                 stop = tr_st.TrainStop._from_trenord_raw_data(
-                    raw_stop, today=self.departing_date
+                    raw_stop, day=self.departing_date
                 )  # type:ignore
             except IncompleteTrenordStopDataException:
                 # The stop - for some unknown reason - has no 'station' information
@@ -267,6 +267,58 @@ class Train:
                 )
                 stop = old_stops[i]  # type: ignore
             self.stops.append(stop)
+
+        self._fix_intraday_datetimes()
+
+    def _fix_intraday_datetimes(self):
+        """
+        Trenord provides arrival/departures times in a HH:MM:SS format,
+        leaving the interpretation of the date up to the user.
+
+        By default, TrainStop._from_trenord_raw_data injects date information
+        referring to the 'Train.day' field (the _departing_ date of the train).
+        However, some trains depart late in the night and arrive in 'another day':
+        TrainStop._from_trenord_raw_data does not handle that cases, because
+        it would need to know the datetime of the _first_ stop to distinguish
+        between 'after-midnight' trains (trains with ALL stops .hour < 4) and
+        'intra-day' (trains with the FIRST stop .hour > 4 - realistically > ~23
+        and SOME stops with .hour < 4).
+
+        This method detects and fixes those cases.
+        """
+        if self._phantom or self._trenord_phantom or self.cancelled:
+            return
+        if not isinstance(self.stops, list) or len(self.stops) < 2:
+            return
+
+        first_stop_idx: int = 0
+        while first_stop_idx < len(self.stops):
+            if not self.stops[first_stop_idx].departure:
+                first_stop_idx += 1
+                continue
+            break
+
+        # 'after-midnight' check: the train departs AFTER midnight
+        # and the 'day' field is already correct.
+        if self.stops[first_stop_idx].departure.expected.hour < INTRADAY_SPLIT_HOUR:  # type: ignore
+            return
+
+        # 'intra-day' check: the train departs BEFORE midnight
+        # but there are stops that have times AFTER midnight
+        for stop in self.stops[first_stop_idx:]:
+            # fmt: off
+            if isinstance(stop.arrival, tr_st.TrainStopTime):
+                if stop.arrival.expected and stop.arrival.expected.hour < INTRADAY_SPLIT_HOUR:
+                    stop.arrival.expected += timedelta(days=1)
+                if stop.arrival.actual and stop.arrival.actual.hour < INTRADAY_SPLIT_HOUR:
+                    stop.arrival.actual += timedelta(days=1)
+
+            if isinstance(stop.departure, tr_st.TrainStopTime):
+                if stop.departure.expected and stop.departure.expected.hour < INTRADAY_SPLIT_HOUR:
+                    stop.departure.expected += timedelta(days=1)
+                if stop.departure.actual and stop.departure.actual.hour < INTRADAY_SPLIT_HOUR:
+                    stop.departure.actual += timedelta(days=1)
+            # fmt: on
 
     def arrived(self) -> bool | None:
         """Return True if the train has arrived (no more information to fetch),
