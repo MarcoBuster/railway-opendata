@@ -5,9 +5,10 @@ from datetime import datetime
 
 import pandas as pd
 from dateparser import parse
+from pandas.core.groupby.generic import DataFrameGroupBy
 from tqdm import tqdm
 
-from src.analysis import stat
+from src.analysis import groupby, stat
 from src.analysis.filter import date_filter
 from src.analysis.load_data import read_station_csv, read_train_csv
 
@@ -20,6 +21,24 @@ def register_args(parser: argparse.ArgumentParser):
     parser.add_argument(
         "--end-date",
         help="the end date in a 'dateparser'-friendly format",
+    )
+    parser.add_argument(
+        "--group-by",
+        help="group by stops by a value",
+        choices=(
+            "none",
+            "number",
+        ),
+        default="none",
+    )
+    parser.add_argument(
+        "--agg-func",
+        help="group by aggregation function",
+        choices=(
+            "mean",
+            "last",
+        ),
+        default="last",
     )
     parser.add_argument(
         "--stat",
@@ -75,6 +94,19 @@ def main(args: argparse.Namespace):
     # Apply filters
     df = date_filter(df, start_date, end_date)
     logging.info(f"Loaded {len(df)} data points ({original_length} before filtering)")
+
+    if args.group_by != "none":
+        df_grouped: DataFrameGroupBy | None = None
+
+        if args.group_by == "train_number":
+            df_grouped = groupby.train_number(df)
+
+        assert df_grouped is not None
+
+        if args.agg_func == "last":
+            df = df_grouped.last()
+        elif args.agg_func == "mean":
+            df = df_grouped.mean()
 
     if args.stat == "describe":
         df = stat.describe(df)
