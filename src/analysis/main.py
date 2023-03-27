@@ -7,6 +7,7 @@ import pandas as pd
 from dateparser import parse
 from tqdm import tqdm
 
+from src.analysis import stat
 from src.analysis.filter import date_filter
 from src.analysis.load_data import read_station_csv, read_train_csv
 
@@ -23,6 +24,17 @@ def register_args(parser: argparse.ArgumentParser):
     parser.add_argument(
         "--stat",
         help="the stat to calculate",
+        choices=("describe",),
+        default="describe",
+    )
+    parser.add_argument(
+        "--format",
+        help="output format",
+        choices=(
+            "human",
+            "csv",
+        ),
+        default="human",
     )
     parser.add_argument(
         "station_csv",
@@ -62,6 +74,12 @@ def main(args: argparse.Namespace):
 
     # Apply filters
     df = date_filter(df, start_date, end_date)
-
     logging.info(f"Loaded {len(df)} data points ({original_length} before filtering)")
-    print(df)
+
+    if args.stat == "describe":
+        df = stat.describe(df)
+
+    if args.format == "human":
+        print(df)
+    elif args.format == "csv":
+        print(df.to_csv())
