@@ -93,6 +93,8 @@ def main(args: argparse.Namespace):
     df: pd.DataFrame | DataFrameGroupBy = date_filter(df, start_date, end_date)
     logging.info(f"Loaded {len(df)} data points ({original_length} before filtering)")
 
+    stat.set_plot_title(df, args)
+
     if args.group_by != "none":
         df_grouped: DataFrameGroupBy | None = None
 
