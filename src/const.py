@@ -1,5 +1,3 @@
-import locale
-import logging
 from enum import Enum
 
 from dateutil import tz
@@ -12,28 +10,16 @@ INTRADAY_SPLIT_HOUR: int = 4
 
 # Pandas locale
 LOCALE: str = "it_IT.utf-8"
-try:
-    locale.setlocale(locale.LC_ALL, LOCALE)
-except locale.Error:
-    logging.warning(
-        f"Can't set locale {LOCALE}. "
-        f"Using the default one: {locale.getdefaultlocale()[0]}"
-    )
 
-
-# Weekdays
-def _w(weekday_number: int) -> str:
-    return locale.nl_langinfo(getattr(locale, f"DAY_{weekday_number}")).title()
-
-
+# Italian weekdays - see 'LOCALE'
 WEEKDAYS = {
-    _w(2): 1,  # Monday
-    _w(3): 2,  # Tuesday
-    _w(4): 3,  # Wednesday
-    _w(5): 4,  # Thursday
-    _w(6): 5,  # Friday
-    _w(7): 6,  # Saturday
-    _w(1): 7,  # Sunday
+    "Lunedì": 1,  # Monday
+    "Martedì": 2,  # Tuesday
+    "Mercoledì": 3,  # Wednesday
+    "Giovedì": 4,  # Thursday
+    "Venerdì": 5,  # Friday
+    "Sabato": 6,  # Saturday
+    "Domenica": 7,  # Sunday
 }
 
 
