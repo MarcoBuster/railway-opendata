@@ -27,7 +27,9 @@ def register_args(parser: argparse.ArgumentParser):
         help="group by stops by a value",
         choices=(
             "none",
-            "number",
+            "train_hash",
+            "client_code",
+            "weekday",
         ),
         default="none",
     )
@@ -35,6 +37,7 @@ def register_args(parser: argparse.ArgumentParser):
         "--agg-func",
         help="group by aggregation function",
         choices=(
+            "none",
             "mean",
             "last",
         ),
@@ -43,17 +46,11 @@ def register_args(parser: argparse.ArgumentParser):
     parser.add_argument(
         "--stat",
         help="the stat to calculate",
-        choices=("describe",),
-        default="describe",
-    )
-    parser.add_argument(
-        "--format",
-        help="output format",
         choices=(
-            "human",
-            "csv",
+            "describe",
+            "delay_boxplot",
         ),
-        default="human",
+        default="describe",
     )
     parser.add_argument(
         "station_csv",
@@ -87,31 +84,35 @@ def main(args: argparse.Namespace):
         train_df: pd.DataFrame = read_train_csv(pathlib.Path(train_csv))
         df = pd.concat([df, train_df], axis=0)
         logging.debug(f"Loaded {len(train_df)} data points @ {path}")
+    df.reset_index(drop=True, inplace=True)
 
     stations: pd.DataFrame = read_station_csv(args.station_csv)
     original_length: int = len(df)
 
     # Apply filters
-    df = date_filter(df, start_date, end_date)
+    df: pd.DataFrame | DataFrameGroupBy = date_filter(df, start_date, end_date)
     logging.info(f"Loaded {len(df)} data points ({original_length} before filtering)")
 
     if args.group_by != "none":
         df_grouped: DataFrameGroupBy | None = None
 
-        if args.group_by == "train_number":
-            df_grouped = groupby.train_number(df)
+        if args.group_by == "train_hash":
+            df_grouped = groupby.train_hash(df)
+        elif args.group_by == "client_code":
+            df_grouped = groupby.client_code(df)
+        elif args.group_by == "weekday":
+            df_grouped = groupby.weekday(df)
 
         assert df_grouped is not None
 
         if args.agg_func == "last":
             df = df_grouped.last()
         elif args.agg_func == "mean":
-            df = df_grouped.mean()
+            df = df_grouped.mean(numeric_only=True)
+        elif args.agg_func == "none":
+            df = df_grouped
 
     if args.stat == "describe":
-        df = stat.describe(df)
-
-    if args.format == "human":
-        print(df)
-    elif args.format == "csv":
-        print(df.to_csv())
+        stat.describe(df)
+    elif args.stat == "delay_boxplot":
+        stat.delay_boxplot(df)

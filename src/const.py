@@ -1,3 +1,4 @@
+import locale
 from enum import Enum
 
 from dateutil import tz
@@ -7,6 +8,27 @@ TIMEZONE = tz.gettz("GMT+1")
 
 # Intra-day split hour
 INTRADAY_SPLIT_HOUR: int = 4
+
+# Pandas locale
+LOCALE: str = "it_IT.utf-8"
+
+# Weekdays
+locale.setlocale(locale.LC_ALL, LOCALE)
+
+
+def _w(weekday_number: int) -> str:
+    return locale.nl_langinfo(getattr(locale, f"DAY_{weekday_number}")).title()
+
+
+WEEKDAYS = {
+    _w(2): 1,  # Monday
+    _w(3): 2,  # Tuesday
+    _w(4): 3,  # Wednesday
+    _w(5): 4,  # Thursday
+    _w(6): 5,  # Friday
+    _w(7): 6,  # Saturday
+    _w(1): 7,  # Sunday
+}
 
 
 class RailwayCompany(Enum):
@@ -21,8 +43,9 @@ class RailwayCompany(Enum):
     OTHER = -1
 
     @classmethod
-    def from_code(cls, code: int) -> "RailwayCompany":
+    def from_code(cls, code: int) -> str:
         try:
-            return cls(code)
+            instance: "RailwayCompany" = cls(code)
         except ValueError:
-            return cls.OTHER
+            instance: "RailwayCompany" = cls.OTHER
+        return instance.name
