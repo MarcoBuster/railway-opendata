@@ -41,7 +41,7 @@ def register_args(parser: argparse.ArgumentParser):
             "mean",
             "last",
         ),
-        default="last",
+        default="none",
     )
     parser.add_argument(
         "--stat",
@@ -49,6 +49,7 @@ def register_args(parser: argparse.ArgumentParser):
         choices=(
             "describe",
             "delay_boxplot",
+            "day_train_count",
         ),
         default="describe",
     )
@@ -118,3 +119,5 @@ def main(args: argparse.Namespace):
         stat.describe(df)
     elif args.stat == "delay_boxplot":
         stat.delay_boxplot(df)
+    elif args.stat == "day_train_count":
+        stat.day_train_count(df)

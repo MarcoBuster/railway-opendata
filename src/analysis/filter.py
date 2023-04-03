@@ -17,7 +17,9 @@ def date_filter(
         pd.DataFrame: the filtered dataframe
     """
     if isinstance(start_date, datetime):
-        df = df.loc[df.day >= start_date.date()]
+        start_date = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
+        df = df.loc[df.day >= start_date]
     if isinstance(end_date, datetime):
-        df = df.loc[df.day <= end_date.date()]
+        end_date = end_date.replace(hour=0, minute=0, second=0, microsecond=0)
+        df = df.loc[df.day <= end_date]
     return df

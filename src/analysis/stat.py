@@ -17,6 +17,7 @@ def set_plot_title(df: pd.DataFrame, args: argparse.Namespace) -> None:
     """Set the plot title based on the cli arguments"""
     if args.stat not in [
         "delay_boxplot",
+        "day_train_count",
     ]:
         return
 
@@ -36,8 +37,6 @@ def set_plot_title(df: pd.DataFrame, args: argparse.Namespace) -> None:
 
 def delay_boxplot(df: pd.DataFrame | DataFrameGroupBy) -> None:
     """Show a seaborn boxplot of departure and arrival delays"""
-    sns.set_theme(style="ticks", palette="pastel")
-    sns.set()
 
     if isinstance(df, DataFrameGroupBy):
         grouped_by: str = df.any().index.name
@@ -81,4 +80,33 @@ def delay_boxplot(df: pd.DataFrame | DataFrameGroupBy) -> None:
         ax.set(xlabel="Variable", ylabel="Delay (minutes)")
 
     plt.grid()
+    plt.show()
+
+
+def day_train_count(df: pd.DataFrame | DataFrameGroupBy) -> None:
+    """Show a seaborn barplot of unique train count, grouped by day"""
+
+    if isinstance(df, DataFrameGroupBy):
+        grouped_by: str = df.any().index.name
+        grouped = df.obj.groupby(["day", grouped_by]).nunique().reset_index()
+        grouped["day"] = grouped["day"].apply(lambda d: d.date().isoformat())
+
+        ax = sns.barplot(
+            data=grouped,
+            x="day",
+            y="train_hash",
+            hue=grouped_by,
+        )
+
+    elif isinstance(df, pd.DataFrame):
+        grouped = df.groupby("day").nunique().reset_index()
+        grouped["day"] = grouped["day"].apply(lambda d: d.date().isoformat())
+
+        ax = sns.barplot(
+            data=grouped,
+            x="day",
+            y="train_hash",
+        )
+
+    ax.set(xlabel="Day", ylabel="Train count")
     plt.show()
