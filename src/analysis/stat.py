@@ -1,5 +1,6 @@
 import argparse
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
@@ -13,13 +14,16 @@ def describe(df: pd.DataFrame | DataFrameGroupBy) -> None:
     print(df.describe())
 
 
-def set_plot_title(df: pd.DataFrame, args: argparse.Namespace) -> None:
-    """Set the plot title based on the cli arguments"""
+def prepare_mpl(df: pd.DataFrame, args: argparse.Namespace) -> None:
+    """Prepare matplotlib params"""
     if args.stat not in [
         "delay_boxplot",
         "day_train_count",
     ]:
         return
+
+    mpl.rcParams["figure.figsize"] = (12, 12 * 5 / 7)
+    sns.set_theme(style="whitegrid", palette="pastel")
 
     plt.title(args.stat)
 
@@ -79,7 +83,6 @@ def delay_boxplot(df: pd.DataFrame | DataFrameGroupBy) -> None:
         )
         ax.set(xlabel="Variable", ylabel="Delay (minutes)")
 
-    plt.grid()
     plt.show()
 
 
