@@ -275,6 +275,12 @@ class Train:
                     break
             self.stops.append(stop)
 
+        # If all train stops are cancelled, then the train itself is cancelled
+        if all(
+            [stop.stop_type == tr_st.TrainStopType.CANCELLED for stop in self.stops]
+        ):
+            self.cancelled = True
+
         self._fix_intraday_datetimes()
 
     def _fix_intraday_datetimes(self):
