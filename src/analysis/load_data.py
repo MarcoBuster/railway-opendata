@@ -64,4 +64,31 @@ def read_station_csv(file: Path) -> pd.DataFrame:
         pd.DataFrame: the loaded dataframe
     """
 
-    return pd.read_csv(file)
+    st: pd.DataFrame = pd.read_csv(file, index_col="code")
+
+    # Some stations (like 'Brescia') have MULTIPLE codes,
+    # but only one associated row has useful (non-NaN) information.
+    for idx, station in st.iterrows():
+        # Search other stations with the same name
+        other: pd.DataFrame = st.loc[st.long_name == station.long_name]
+        if len(other) == 1:
+            continue
+
+        # If 'this' station has useful information, don't perform any actions
+        if not np.isnan(station.latitude) and not np.isnan(station.longitude):
+            continue
+
+        # If present, select the 'oracle' station with information
+        other = other.loc[~np.isnan(other.latitude)]
+        if len(other) == 0:
+            continue
+        oracle = other.iloc[0]
+
+        # Fill missing information using the oracle data
+        st.loc[st.index == idx, ["short_name", "latitude", "longitude"]] = (  # type: ignore
+            oracle.short_name,
+            oracle.latitude,
+            oracle.longitude,
+        )
+
+    return st
