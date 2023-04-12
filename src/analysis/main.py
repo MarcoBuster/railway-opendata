@@ -8,7 +8,7 @@ from dateparser import parse
 from pandas.core.groupby.generic import DataFrameGroupBy
 from tqdm import tqdm
 
-from src.analysis import groupby, stat
+from src.analysis import groupby, stat, trajectories_map
 from src.analysis.filter import date_filter
 from src.analysis.load_data import read_station_csv, read_train_csv
 
@@ -50,6 +50,7 @@ def register_args(parser: argparse.ArgumentParser):
             "describe",
             "delay_boxplot",
             "day_train_count",
+            "trajectories_map",
         ),
         default="describe",
     )
@@ -121,3 +122,8 @@ def main(args: argparse.Namespace):
         stat.delay_boxplot(df)
     elif args.stat == "day_train_count":
         stat.day_train_count(df)
+    elif args.stat == "trajectories_map":
+        if not isinstance(df, pd.DataFrame):
+            raise ValueError("can't use trajectories_map with unaggregated data")
+
+        trajectories_map.build_map(stations, df)
