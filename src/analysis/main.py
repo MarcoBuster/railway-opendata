@@ -9,7 +9,7 @@ from pandas.core.groupby.generic import DataFrameGroupBy
 from tqdm import tqdm
 
 from src.analysis import groupby, stat, trajectories_map
-from src.analysis.filter import date_filter
+from src.analysis.filter import date_filter, railway_company_filter
 from src.analysis.load_data import read_station_csv, read_train_csv
 
 
@@ -21,6 +21,11 @@ def register_args(parser: argparse.ArgumentParser):
     parser.add_argument(
         "--end-date",
         help="the end date in a 'dateparser'-friendly format",
+    )
+    parser.add_argument(
+        "--railway-companies",
+        help="comma-separated list of railway companies to include. If not set, all companies will be included.",
+        dest="client_codes",
     )
     parser.add_argument(
         "--group-by",
@@ -74,8 +79,10 @@ def main(args: argparse.Namespace):
     if args.end_date and not end_date:
         raise argparse.ArgumentTypeError("invalid end_date")
 
+    railway_companies: str | None = args.client_codes
+
     # Load dataset
-    df = pd.DataFrame()
+    df: pd.DataFrame | DataFrameGroupBy = pd.DataFrame()
     logging.info("Loading datasets...")
     for train_csv in (
         tqdm(args.trains_csv)
@@ -92,7 +99,8 @@ def main(args: argparse.Namespace):
     original_length: int = len(df)
 
     # Apply filters
-    df: pd.DataFrame | DataFrameGroupBy = date_filter(df, start_date, end_date)
+    df = date_filter(df, start_date, end_date)
+    df = railway_company_filter(df, railway_companies)
     logging.info(f"Loaded {len(df)} data points ({original_length} before filtering)")
 
     stat.prepare_mpl(df, args)
