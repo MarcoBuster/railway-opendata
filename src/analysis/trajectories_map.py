@@ -1,5 +1,6 @@
 import itertools
 import logging
+import pathlib
 import typing as t
 import webbrowser
 from collections import defaultdict
@@ -45,6 +46,9 @@ _default_color = "#9a8c9c"
 COLOR_MAP = defaultdict(lambda: _default_color)
 for k in _color_map:
     COLOR_MAP[k] = _color_map[k]
+
+
+ASSETS_PATH = pathlib.Path("./src/analysis/assets/").resolve()
 
 
 def fill_time(start: datetime, end: datetime) -> t.Generator[datetime, None, None]:
@@ -101,13 +105,8 @@ def train_stop_geojson(st: pd.DataFrame, train: pd.DataFrame) -> list[dict]:
             # The station location can't be retrieved
             continue
 
-        prev_time: datetime | None = prev.departure_expected
-        if prev.departure_actual:
-            prev_time = prev.departure_actual
-
-        curr_time: datetime | None = curr.arrival_expected
-        if curr.arrival_actual:
-            curr_time = curr.arrival_actual
+        prev_time: datetime | None = prev.departure_actual or prev.departure_expected
+        curr_time: datetime | None = curr.arrival_actual or curr.arrival_expected
 
         # Sanity check: _time must be not null
         if not prev_time or not curr_time:
@@ -123,27 +122,61 @@ def train_stop_geojson(st: pd.DataFrame, train: pd.DataFrame) -> list[dict]:
             continue
 
         for timestamp in fill_time(prev_time, curr_time):
-            ret.append(
-                {
-                    "type": "Feature",
-                    "geometry": {
-                        "type": "LineString",
-                        "coordinates": [
-                            (prev_st.longitude, prev_st.latitude),
-                            (curr_st.longitude, curr_st.latitude),
-                        ],
-                    },
-                    "properties": {
-                        "times": [timestamp.isoformat()] * 2,
-                        "style": {
-                            "color": COLOR_MAP[curr.client_code],
-                            "weight": int(curr.crowding / 10)
-                            if not np.isnan(curr.crowding)
-                            and curr.crowding > MIN_WEIGHT * 10
-                            else MIN_WEIGHT,
+            ret.extend(
+                [
+                    {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "LineString",
+                            "coordinates": [
+                                (prev_st.longitude, prev_st.latitude),
+                                (curr_st.longitude, curr_st.latitude),
+                            ],
+                        },
+                        "properties": {
+                            "times": [timestamp.isoformat()] * 2,
+                            "style": {
+                                "color": COLOR_MAP[curr.client_code],
+                                "weight": int(curr.crowding / 10)
+                                if not np.isnan(curr.crowding)
+                                and curr.crowding > MIN_WEIGHT * 10
+                                else MIN_WEIGHT,
+                            },
                         },
                     },
-                }
+                    {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": (curr_st.longitude, curr_st.latitude),
+                        },
+                        "properties": {
+                            "icon": "marker",
+                            "iconstyle": {
+                                "iconUrl": str(ASSETS_PATH / "train-marker.svg"),
+                                "iconSize": [24, 24],
+                                "fillOpacity": 1,
+                            },
+                            "tooltip": (
+                                f"<b>{curr.client_code}</b> &#8729; <b>{curr.category}</b> <b>{curr.number}</b>"
+                                f"<dd>{prev_st.long_name} "
+                                f"{f'({round(prev.departure_delay, 1):+g} min)' if not np.isnan(prev.departure_delay) else ''}"
+                                f" &rarr; "
+                                f"{curr_st.long_name} "
+                                f"{f' ({round(prev.arrival_delay, 1):+g} min)' if not np.isnan(prev.arrival_delay) else ''}"
+                            ),
+                            "name": "",
+                            "times": [timestamp.isoformat()],
+                            "style": {
+                                "color": COLOR_MAP[curr.client_code],
+                                "weight": int(curr.crowding / 10)
+                                if not np.isnan(curr.crowding)
+                                and curr.crowding > MIN_WEIGHT * 10
+                                else MIN_WEIGHT,
+                            },
+                        },
+                    },
+                ]
             )
 
     return ret
