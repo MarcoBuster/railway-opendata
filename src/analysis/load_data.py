@@ -51,6 +51,11 @@ def read_train_csv(file: Path) -> pd.DataFrame:
     df = df.loc[(df.phantom == False) & (df.trenord_phantom == False)].drop(
         ["phantom", "trenord_phantom"], axis=1
     )
+
+    # Fix incorrect origin and destination
+    df["origin"] = (df.groupby("train_hash").transform("first"))["stop_station_code"]
+    df["destination"] = df.groupby("train_hash").transform("last")["stop_station_code"]
+
     return df
 
 
@@ -92,3 +97,40 @@ def read_station_csv(file: Path) -> pd.DataFrame:
         )
 
     return st
+
+
+def tag_lines(df: pd.DataFrame, stations: pd.DataFrame) -> pd.DataFrame:
+    """Add 'railway line' information to the 'trains' dataframe.
+
+    Args:
+        trains (pd.DataFrame): the considered dataframe
+        stations (pd.DataFrame): the station data
+
+    Returns:
+        pd.DataFrame: the tagged dataframe
+
+    Notes:
+        Two trains (t_1, t_2) are considered of the same 'railway line' iff:
+        - t_1.railway_company == t_2.railway_company;
+        - t_1.origin == t_2.origin and t_1.destination == t_2.destination or viceversa;
+        - t_1.stop_set == t_2.stop_set (*).
+
+        (*): can be simplified in t_1.stop_count == t_2.stop_count.
+
+        The above definition is just a convenient approximation.
+        More precise considerations can only be made on a case-by-case basis.
+    """
+
+    df = df.sort_values(["train_hash", "stop_number"])
+    df["total_stop_number"] = df.groupby("train_hash").stop_number.transform(max) + 1
+    df["track"] = df.apply(
+        lambda r: (r.origin + "_" + r.destination)
+        if r.origin > r.destination
+        else (r.destination + "_" + r.origin),
+        axis=1,
+    )
+    df["line"] = df.apply(
+        lambda r: f"{r.client_code}_{r.track}_{r.total_stop_number}",
+        axis=1,
+    )
+    return df

@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 from src.analysis import groupby, stat, trajectories_map
 from src.analysis.filter import date_filter, railway_company_filter
-from src.analysis.load_data import read_station_csv, read_train_csv
+from src.analysis.load_data import read_station_csv, read_train_csv, tag_lines
 
 
 def register_args(parser: argparse.ArgumentParser):
@@ -103,6 +103,10 @@ def main(args: argparse.Namespace):
     df = railway_company_filter(df, railway_companies)
     logging.info(f"Loaded {len(df)} data points ({original_length} before filtering)")
 
+    # Tag lines
+    tag_lines(df, stations)
+
+    # Prepare graphics
     stat.prepare_mpl(df, args)
 
     if args.group_by != "none":
