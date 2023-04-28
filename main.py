@@ -17,56 +17,18 @@ scraper_p = subparsers.add_parser(
     help="station and train data scraper",
 )
 
-# Train extractor arguments
-t_extractor = subparsers.add_parser(
-    "train-extractor",
-    help="convert scraped train data",
+train_extractor.register_args(
+    subparsers.add_parser(
+        "train-extractor",
+        help="convert scraped train data",
+    )
 )
-t_extractor.add_argument(
-    "pickle_file",
-    help=".pickle file to parse",
-    metavar="PICKLE_FILE",
+station_extractor.register_args(
+    subparsers.add_parser(
+        "station-extractor",
+        help="convert scraped station data",
+    )
 )
-t_extractor.add_argument(
-    "-f",
-    default="csv",
-    choices=[
-        "csv",
-    ],
-    help="output file format",
-    dest="format",
-)
-t_extractor.add_argument(
-    "-o",
-    help="output file name",
-    metavar="OUTPUT_FILE",
-    dest="output_file",
-)
-
-# Station extractor arguments
-s_extractor = subparsers.add_parser(
-    "station-extractor",
-    help="convert scraped station data",
-)
-s_extractor.add_argument(
-    "pickle_file",
-    help=".pickle file to parse",
-    metavar="PICKLE_FILE",
-)
-s_extractor.add_argument(
-    "-f",
-    default="csv",
-    choices=["csv", "geojson"],
-    help="output file format",
-    dest="format",
-)
-s_extractor.add_argument(
-    "-o",
-    help="output file name",
-    metavar="OUTPUT_FILE",
-    dest="output_file",
-)
-
 analysis.register_args(
     subparsers.add_parser(
         "analyze",

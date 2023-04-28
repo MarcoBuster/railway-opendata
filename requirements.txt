@@ -9,3 +9,4 @@ matplotlib==3.7.1
 seaborn==0.12.2
 folium==0.14.0
 joblib==1.2.0
+timple==0.1.5
