@@ -81,7 +81,7 @@ class Train:
             Train: the initialized train
         """
         departing_date_midnight = api.ViaggiaTrenoAPI._to_datetime(
-            train_data["dataPartenzaTreno"]
+            train_data["dataPartenzaTreno"] + 18000 * 1000  # Ensure correct date
         )
         assert isinstance(departing_date_midnight, datetime)
 
