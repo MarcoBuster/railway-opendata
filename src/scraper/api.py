@@ -28,18 +28,6 @@ class ViaggiaTrenoAPI:
             )
         ),
     )
-    _session.mount(
-        "https://",
-        HTTPAdapter(
-            max_retries=Retry(
-                total=10,
-                read=5,
-                status=10,
-                status_forcelist=[403, 500, 502, 503, 504],
-                backoff_factor=0.2,
-            )
-        ),
-    )
 
     @classmethod
     def _raw_request(cls, method: str, *parameters: t.Any) -> str:
@@ -132,12 +120,12 @@ class TrenordAPI:
     # Initialize requests session with auto-retry and exponential backoff
     _session: requests.Session = requests.Session()
     _session.mount(
-        "http://",
+        "https://",
         HTTPAdapter(
             max_retries=Retry(
                 total=10,
                 read=5,
-                status=10,
+                status=5,
                 status_forcelist=[403, 500, 502, 503, 504],
                 backoff_factor=0.2,
             )
