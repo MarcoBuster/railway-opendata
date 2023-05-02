@@ -122,7 +122,9 @@ def tag_lines(df: pd.DataFrame, stations: pd.DataFrame) -> pd.DataFrame:
     """
 
     df = df.sort_values(["train_hash", "stop_number"])
-    df["total_stop_number"] = df.groupby("train_hash").stop_number.transform(max) + 1
+    df["stop_set"] = df.groupby("train_hash").stop_station_code.transform(
+        lambda stops: hash(frozenset(stops.unique()))
+    )
     df["track"] = df.apply(
         lambda r: (r.origin + "_" + r.destination)
         if r.origin > r.destination
@@ -130,7 +132,7 @@ def tag_lines(df: pd.DataFrame, stations: pd.DataFrame) -> pd.DataFrame:
         axis=1,
     )
     df["line"] = df.apply(
-        lambda r: f"{r.client_code}_{r.track}_{r.total_stop_number}",
+        lambda r: f"{r.client_code}_{r.track}_{r.stop_set}",
         axis=1,
     )
     return df

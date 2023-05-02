@@ -1,5 +1,6 @@
 import argparse
 import logging
+import os
 import sys
 
 import src.analysis.main as analysis
@@ -38,6 +39,14 @@ analysis.register_args(
 
 
 def main():
+    hashseed: str | None = os.getenv("PYTHONHASHSEED")
+    if not hashseed or hashseed != "0":
+        logging.critical(
+            "Hash seed randomization is not disabled. "
+            "Please disable it by setting the PYTHONHASHSEED=0 environment variable."
+        )
+        sys.exit(1)
+
     args: argparse.Namespace = parser.parse_args()
 
     logging.basicConfig(
