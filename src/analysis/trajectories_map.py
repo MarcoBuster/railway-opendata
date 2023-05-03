@@ -11,6 +11,7 @@ import folium
 import folium.plugins
 import numpy as np
 import pandas as pd
+from colour import Color
 from joblib import Parallel, delayed
 
 # The 'length' (in minutes) of a frame
@@ -32,23 +33,26 @@ MAP_KWARGS: dict = {
     "attr": "OSM",
 }
 
-# Client code colors
-_color_map = {
-    "TRENITALIA_REG": "#781504",
-    "TRENORD": "#07b836",
-    "TRENITALIA_AV": "#ff2600",
-    "TRENITALIA_IC": "#0044ff",
-    "TPER": "#d8f500",
-    "OBB": "#d800f5",
-}
-_default_color = "#9a8c9c"
-
-COLOR_MAP = defaultdict(lambda: _default_color)
-for k in _color_map:
-    COLOR_MAP[k] = _color_map[k]
-
-
+# Assets path (marker icons)
 ASSETS_PATH = pathlib.Path("./src/analysis/assets/").resolve()
+
+# Delay color range: (lower_bound, color)
+_color_map: list[tuple[float, Color]] = [
+    (-5, Color("#34ebc0")),
+    (0, Color("green")),
+    (10, Color("orange")),
+    (30, Color("red")),
+    (120, Color("black")),
+]
+
+# Statically populate COLORS dict
+COLORS: dict[int | float, Color] = defaultdict(lambda: Color("gray"))
+for i, (lower_bound, color) in enumerate(_color_map[1:]):
+    prev_bound, prev_color = _color_map[i + 1 - 1]
+    n_range: range = range(round(prev_bound), round(lower_bound) + 1)
+    scale: list[Color] = list(prev_color.range_to(color, len(n_range)))
+    for j, n in enumerate(n_range):
+        COLORS[n] = scale[j]
 
 
 def fill_time(start: datetime, end: datetime) -> t.Generator[datetime, None, None]:
@@ -142,6 +146,11 @@ def train_stop_geojson(st: pd.DataFrame, train: pd.DataFrame) -> list[dict]:
 
         prev_time: datetime | None = prev.departure_actual or prev.departure_expected
         curr_time: datetime | None = curr.arrival_actual or curr.arrival_expected
+        delay: float = (
+            round(prev.departure_delay)
+            if not np.isnan(prev.departure_delay)
+            else np.nan
+        )
 
         # Sanity check: _time must be not null
         if not prev_time or not curr_time:
@@ -171,7 +180,7 @@ def train_stop_geojson(st: pd.DataFrame, train: pd.DataFrame) -> list[dict]:
                         "properties": {
                             "times": [timestamp.isoformat()] * 2,
                             "style": {
-                                "color": COLOR_MAP[curr.client_code],
+                                "color": COLORS[delay].get_hex(),
                                 "weight": int(curr.crowding / 10)
                                 if not np.isnan(curr.crowding)
                                 and curr.crowding > MIN_WEIGHT * 10
@@ -205,13 +214,6 @@ def train_stop_geojson(st: pd.DataFrame, train: pd.DataFrame) -> list[dict]:
                             ),
                             "name": "",
                             "times": [timestamp.isoformat()],
-                            "style": {
-                                "color": COLOR_MAP[curr.client_code],
-                                "weight": int(curr.crowding / 10)
-                                if not np.isnan(curr.crowding)
-                                and curr.crowding > MIN_WEIGHT * 10
-                                else MIN_WEIGHT,
-                            },
                         },
                     },
                 ]
