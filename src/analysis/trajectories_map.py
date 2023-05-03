@@ -71,7 +71,7 @@ def fill_time(start: datetime, end: datetime) -> t.Generator[datetime, None, Non
 
     while start <= end:
         yield start
-        start += timedelta(minutes=(WINDOW_SIZE / 2) if WINDOW_SIZE > 1 else 1)
+        start += timedelta(minutes=WINDOW_SIZE)
 
 
 def icon_marker(railway_company: str, category: str) -> str:
