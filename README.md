@@ -44,9 +44,7 @@ $ python main.py ...
 
 (TODO)
 
-## Usage
-
-Example usages.
+## Example usages
 
 - __Start the scraper__. For continuos data collection, it should be run every ~hour.
 
@@ -59,6 +57,22 @@ Example usages.
 - __Extract station data__ from a pickle file and save it in GeoJSON.
 
     `$ python main.py station-extractor -f geojson data/stations.pickle`
+
+- __Describe a dataset__ and filter observation by date.
+
+    `$ python main.py analyze --start-date 2023-05-01 --end-date today data/stations.csv data/2023-05-*/trains.csv --stat describe`
+
+- __Show delay stats__ of the last stop.
+
+    `$ python main.py analyze --group-by train_hash --agg-func last .../stations.csv .../trains.csv --stat delay_box_plot`
+
+- __Show daily train count__ grouped by railway companies.
+
+    `$ python main.py analyze --group-by client_code .../stations.csv .../trains.csv --stat day_train_count`
+
+- __Display an interactive map__ and open it in the web browser.
+
+    `$ python main.py analyze trajectories_map`
 
 ## Fields
 
