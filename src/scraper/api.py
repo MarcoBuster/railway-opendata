@@ -7,7 +7,7 @@ from requests.adapters import HTTPAdapter, Retry
 
 import src.scraper.train as tr
 from src import types
-from src.const import TIMEZONE
+from src.const import TIMEZONE, TIMEZONE_GMT
 from src.scraper.exceptions import BadRequestException
 
 
@@ -101,7 +101,7 @@ class ViaggiaTrenoAPI:
         """
         assert kind in ["partenze", "arrivi"]
 
-        now: str = datetime.now(tz=TIMEZONE).strftime("%a %b %d %Y %H:%M:%S %Z%z")
+        now: str = datetime.now(tz=TIMEZONE_GMT).strftime("%a %b %d %Y %H:%M:%S %Z%z")
         raw_trains: str = ViaggiaTrenoAPI._raw_request(kind, station_code, now)
         trains: types.JSONType = ViaggiaTrenoAPI._decode_json(raw_trains)
         return list(
@@ -120,12 +120,12 @@ class TrenordAPI:
     # Initialize requests session with auto-retry and exponential backoff
     _session: requests.Session = requests.Session()
     _session.mount(
-        "http://",
+        "https://",
         HTTPAdapter(
             max_retries=Retry(
                 total=10,
                 read=5,
-                status=10,
+                status=5,
                 status_forcelist=[403, 500, 502, 503, 504],
                 backoff_factor=0.2,
             )

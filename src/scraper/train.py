@@ -81,7 +81,7 @@ class Train:
             Train: the initialized train
         """
         departing_date_midnight = api.ViaggiaTrenoAPI._to_datetime(
-            train_data["dataPartenzaTreno"]
+            train_data["dataPartenzaTreno"] + 18000 * 1000  # Ensure correct date
         )
         assert isinstance(departing_date_midnight, datetime)
 
@@ -274,6 +274,12 @@ class Train:
                     )
                     break
             self.stops.append(stop)
+
+        # If all train stops are cancelled, then the train itself is cancelled
+        if all(
+            [stop.stop_type == tr_st.TrainStopType.CANCELLED for stop in self.stops]
+        ):
+            self.cancelled = True
 
         self._fix_intraday_datetimes()
 

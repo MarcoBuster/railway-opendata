@@ -3,10 +3,12 @@ import logging
 import os
 import pathlib
 import pickle
+import subprocess
 import sys
 import typing as t
 from datetime import date, datetime, timedelta
 
+import sentry_sdk
 from tqdm import tqdm
 
 from src.const import TIMEZONE
@@ -14,6 +16,17 @@ from src.scraper.station import Station
 from src.scraper.train import Train
 
 DATA_DIR = pathlib.Path("data/")
+
+
+def get_git_revision_short_hash() -> str:
+    try:
+        return (
+            subprocess.check_output(["git", "rev-parse", "--short", "HEAD"])
+            .decode("ascii")
+            .strip()
+        )
+    except subprocess.CalledProcessError:
+        return "unknown"
 
 
 def load_dataset(file_path: pathlib.Path) -> dict[t.Any, t.Any]:
@@ -30,6 +43,23 @@ def save_dataset(file_path: pathlib.Path, dataset: dict[t.Any, t.Any]) -> None:
 
 
 def main() -> None:
+    hashseed = os.getenv("PYTHONHASHSEED")
+    if not hashseed or hashseed != "0":
+        logging.critical(
+            "Hash seed randomization is not disabled. "
+            "Please disable it by setting PYTHONHASHSEED=0 environment variable"
+        )
+        sys.exit(1)
+
+    sentry_dsn = os.getenv("SENTRY_DSN")
+    if sentry_dsn is not None:
+        sentry_sdk.init(
+            dsn=sentry_dsn,
+            release=get_git_revision_short_hash(),
+            traces_sample_rate=1.0,
+        )
+        logging.info("Activated sentry error reporting")
+
     # Today + ~3 hours
     today: date = (datetime.now(tz=TIMEZONE) - timedelta(hours=3)).date()
     today_path: pathlib.Path = DATA_DIR / today.strftime("%Y-%m-%d")
