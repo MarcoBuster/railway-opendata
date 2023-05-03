@@ -70,6 +70,41 @@ def fill_time(start: datetime, end: datetime) -> t.Generator[datetime, None, Non
         start += timedelta(minutes=(WINDOW_SIZE / 2) if WINDOW_SIZE > 1 else 1)
 
 
+def icon_marker(railway_company: str, category: str) -> str:
+    """Select a proper marker (from the src/analysis/assets/ directory)
+    by railway_company and category.
+
+    Args:
+        railway_company (str): a railway company
+        category (str): a category
+
+    Returns:
+        str: filename of the proper marker
+    """
+
+    category = category.replace("MET", "REG").replace("EC FR", "EC")
+    railway_company = railway_company.lower()
+
+    if railway_company.startswith("trenitalia") and category in [
+        "EC",
+        "FA",
+        "FB",
+        "FR",
+        "IC",
+        "ICN",
+        "REG",
+    ]:
+        return f"trenitalia_{category.lower()}.svg"
+
+    if railway_company in ["trenord", "tper"] and category == "REG":
+        return f"{railway_company}_reg.svg"
+
+    if railway_company == "obb" and category == "EC":
+        return "obb_ec.svg"
+
+    return "other.svg"
+
+
 @delayed
 def train_stop_geojson(st: pd.DataFrame, train: pd.DataFrame) -> list[dict]:
     """Generate a list of GeoJSON formatted data for train stops.
@@ -153,7 +188,10 @@ def train_stop_geojson(st: pd.DataFrame, train: pd.DataFrame) -> list[dict]:
                         "properties": {
                             "icon": "marker",
                             "iconstyle": {
-                                "iconUrl": str(ASSETS_PATH / "train-marker.svg"),
+                                "iconUrl": str(
+                                    ASSETS_PATH
+                                    / icon_marker(curr.client_code, curr.category)
+                                ),
                                 "iconSize": [24, 24],
                                 "fillOpacity": 1,
                             },
