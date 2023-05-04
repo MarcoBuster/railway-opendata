@@ -1,6 +1,7 @@
 import argparse
 import logging
 import pathlib
+import warnings
 from datetime import datetime
 
 import pandas as pd
@@ -71,13 +72,16 @@ def register_args(parser: argparse.ArgumentParser):
 
 
 def main(args: argparse.Namespace):
-    start_date: datetime | None = parse(args.start_date if args.start_date else "")
-    if args.start_date and not start_date:
-        raise argparse.ArgumentTypeError("invalid start_date")
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
 
-    end_date: datetime | None = parse(args.end_date if args.end_date else "")
-    if args.end_date and not end_date:
-        raise argparse.ArgumentTypeError("invalid end_date")
+        start_date: datetime | None = parse(args.start_date if args.start_date else "")
+        if args.start_date and not start_date:
+            raise argparse.ArgumentTypeError("invalid start_date")
+
+        end_date: datetime | None = parse(args.end_date if args.end_date else "")
+        if args.end_date and not end_date:
+            raise argparse.ArgumentTypeError("invalid end_date")
 
     railway_companies: str | None = args.client_codes
 
