@@ -23,6 +23,17 @@ WEEKDAYS = {
     "Domenica": 7,  # Sunday
 }
 
+# Railway company palette
+RAILWAY_COMPANIES_PALETTE = {
+    "TRENITALIA_REG": "#fa1b0f",
+    "TRENORD": "#298044",
+    "TPER": "#d014fa",
+    "TRENITALIA_AV": "#c2152e",
+    "TRENITALIA_IC": "#1b48f2",
+    "OBB": "#464644",
+    "OTHER": "#858585",
+}
+
 
 class RailwayCompany(Enum):
     """Italian railway companies codes."""

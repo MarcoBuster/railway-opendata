@@ -6,7 +6,7 @@ import pandas as pd
 import seaborn as sns
 from pandas.core.groupby.generic import DataFrameGroupBy
 
-from src.const import WEEKDAYS
+from src.const import RAILWAY_COMPANIES_PALETTE, WEEKDAYS
 
 
 def describe(df: pd.DataFrame | DataFrameGroupBy) -> None:
@@ -91,6 +91,16 @@ def day_train_count(df: pd.DataFrame | DataFrameGroupBy) -> None:
 
     if isinstance(df, DataFrameGroupBy):
         grouped_by: str = df.any().index.name
+
+        palette: None | dict[str, str] = None
+        hue_order: None | list[str] = None
+
+        if grouped_by == "client_code":
+            palette = RAILWAY_COMPANIES_PALETTE
+            hue_order = (
+                df.train_hash.nunique().sort_values(ascending=False).index.to_list()
+            )
+
         grouped = df.obj.groupby(["day", grouped_by]).nunique().reset_index()
         grouped["day"] = grouped["day"].apply(lambda d: d.date().isoformat())
 
@@ -99,6 +109,8 @@ def day_train_count(df: pd.DataFrame | DataFrameGroupBy) -> None:
             x="day",
             y="train_hash",
             hue=grouped_by,
+            palette=palette,
+            hue_order=hue_order,
         )
 
     elif isinstance(df, pd.DataFrame):
