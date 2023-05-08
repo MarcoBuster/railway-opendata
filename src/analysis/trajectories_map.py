@@ -167,6 +167,16 @@ def train_stop_geojson(st: pd.DataFrame, train: pd.DataFrame) -> list[dict]:
         if curr_time.year > MAX_YEAR or prev_time.year < MIN_YEAR:
             continue
 
+        # Tooltip pop up display
+        tooltip: str = (
+            f"<b>{curr.client_code}</b> &#8729; <b>{curr.category}</b> <b>{curr.number}</b>"
+            f"<dd>{prev_st.long_name} "
+            f"{f'({round(prev.departure_delay, 1):+g} min)' if not np.isnan(prev.departure_delay) else ''}"
+            f" &rarr; "
+            f"{curr_st.long_name} "
+            f"{f' ({round(prev.arrival_delay, 1):+g} min)' if not np.isnan(prev.arrival_delay) else ''}"
+        )
+
         for timestamp in fill_time(prev_time, curr_time):
             ret.extend(
                 [
@@ -188,6 +198,7 @@ def train_stop_geojson(st: pd.DataFrame, train: pd.DataFrame) -> list[dict]:
                                 and curr.crowding > MIN_WEIGHT * 10
                                 else MIN_WEIGHT,
                             },
+                            "tooltip": tooltip,
                         },
                     },
                     {
@@ -206,14 +217,7 @@ def train_stop_geojson(st: pd.DataFrame, train: pd.DataFrame) -> list[dict]:
                                 "iconSize": [24, 24],
                                 "fillOpacity": 1,
                             },
-                            "tooltip": (
-                                f"<b>{curr.client_code}</b> &#8729; <b>{curr.category}</b> <b>{curr.number}</b>"
-                                f"<dd>{prev_st.long_name} "
-                                f"{f'({round(prev.departure_delay, 1):+g} min)' if not np.isnan(prev.departure_delay) else ''}"
-                                f" &rarr; "
-                                f"{curr_st.long_name} "
-                                f"{f' ({round(prev.arrival_delay, 1):+g} min)' if not np.isnan(prev.arrival_delay) else ''}"
-                            ),
+                            "tooltip": tooltip,
                             "name": "",
                             "times": [timestamp.isoformat()],
                         },
