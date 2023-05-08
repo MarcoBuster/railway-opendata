@@ -12,6 +12,7 @@ import folium.plugins
 import numpy as np
 import pandas as pd
 from colour import Color
+from branca.colormap import LinearColormap
 from joblib import Parallel, delayed
 
 # The 'length' (in minutes) of a frame
@@ -246,6 +247,17 @@ def build_map(st: pd.DataFrame, df: pd.DataFrame) -> None:
         add_last_point=False,
         period=f"PT{WINDOW_SIZE}M",
         duration=f"PT{WINDOW_SIZE}M",
+    ).add_to(m)
+
+    # Add delay legend
+    LinearColormap(
+        colors=list(map(lambda c: c.get_rgb(), COLORS.values())),
+        index=COLORS.keys(),
+        vmin=min(COLORS.keys()),
+        vmax=min(60, max(COLORS.keys())),
+        max_labels=50,
+        tick_labels=list(range(-5, 61, 5)),
+        caption="Departure delay",
     ).add_to(m)
 
     # Save the map to a temporary file and open it with a web browser
