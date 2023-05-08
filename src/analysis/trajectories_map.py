@@ -274,6 +274,9 @@ def build_map(st: pd.DataFrame, df: pd.DataFrame) -> None:
     """
     m = folium.Map(**MAP_KWARGS)
 
+    # Drop cancelled stops and trains
+    df = df.loc[(df.stop_type != "C") & (df.cancelled == False)].copy()
+
     logging.info("Generating GeoJSON features...")
     features = Parallel(n_jobs=-1, verbose=5)(
         train_stop_geojson(st, train_df) for _, train_df in df.groupby("train_hash")
