@@ -11,8 +11,9 @@ import folium
 import folium.plugins
 import numpy as np
 import pandas as pd
-from colour import Color
 from branca.colormap import LinearColormap
+from branca.element import MacroElement, Template
+from colour import Color
 from joblib import Parallel, delayed
 
 # The 'length' (in minutes) of a frame
@@ -223,6 +224,46 @@ def train_stop_geojson(st: pd.DataFrame, train: pd.DataFrame) -> list[dict]:
     return ret
 
 
+class TrainCountChart(MacroElement):
+    """Helper class to compute and embed the train count chart."""
+
+    def __init__(self, df: pd.DataFrame, *args, **kwargs):
+        """Initialize a new object.
+
+        Args:
+            df (pd.DataFrame): the train stop data
+        """
+        super().__init__(*args, **kwargs)
+        self.df = df
+
+    def get_data(self) -> list[dict[str, str | int]]:
+        """Utility function used by the template to get the computed data,
+        in a JS-likable format.
+        """
+        trains = self.df.groupby("train_hash")
+        trains_n = pd.DataFrame(index=self.df.train_hash.unique())
+        trains_n["departure"] = trains.first()["departure_actual"].fillna(
+            trains.first()["departure_expected"]
+        )
+        trains_n["arrival"] = trains.last()["arrival_actual"].fillna(
+            trains.first()["arrival_expected"]
+        )
+
+        js_dataset: list[dict[str, str | int]] = []
+        for time in fill_time(trains_n.departure.min(), trains_n.arrival.max()):
+            js_dataset.append(
+                {
+                    "x": time.isoformat(),
+                    "y": len(
+                        trains_n.loc[
+                            (time >= trains_n.departure) & (time <= trains_n.arrival)
+                        ]
+                    ),
+                }
+            )
+        return js_dataset
+
+
 def build_map(st: pd.DataFrame, df: pd.DataFrame) -> None:
     """Build a Folium map with train trajectories,
     and open it with a web browser.
@@ -260,7 +301,15 @@ def build_map(st: pd.DataFrame, df: pd.DataFrame) -> None:
         caption="Departure delay",
     ).add_to(m)
 
+    # Add train count chart
+    macro = TrainCountChart(df)
+    with open("./src/analysis/assets/train_count.html", "r") as f:
+        train_count_html = "\n".join(f.readlines())
+    macro._template = Template(train_count_html)
+    m.get_root().add_child(macro)
+
     # Save the map to a temporary file and open it with a web browser
     outfile = NamedTemporaryFile(delete=False)
     m.save(outfile.file)
+
     webbrowser.open(outfile.name)
