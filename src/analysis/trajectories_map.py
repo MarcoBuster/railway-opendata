@@ -77,7 +77,7 @@ def fill_time(start: datetime, end: datetime) -> t.Generator[datetime, None, Non
 
 
 def icon_marker(railway_company: str, category: str) -> str:
-    """Select a proper marker (from the src/analysis/assets/ directory)
+    """Select a proper marker (from the src/analysis/assets/markers/ directory)
     by railway_company and category.
 
     Args:
@@ -212,6 +212,7 @@ def train_stop_geojson(st: pd.DataFrame, train: pd.DataFrame) -> list[dict]:
                             "iconstyle": {
                                 "iconUrl": str(
                                     ASSETS_PATH
+                                    / "markers"
                                     / icon_marker(curr.client_code, curr.category)
                                 ),
                                 "iconSize": [24, 24],
@@ -268,6 +269,15 @@ class TrainCountChart(MacroElement):
         return js_dataset
 
 
+class MarkerLegend(MacroElement):
+    """Helper class to embed the marker legend"""
+
+    @staticmethod
+    def get_markers_path() -> str:
+        """Return the absolute path of assets"""
+        return str(ASSETS_PATH / "markers")
+
+
 def build_map(st: pd.DataFrame, df: pd.DataFrame) -> None:
     """Build a Folium map with train trajectories,
     and open it with a web browser.
@@ -308,11 +318,16 @@ def build_map(st: pd.DataFrame, df: pd.DataFrame) -> None:
         caption="Departure delay",
     ).add_to(m)
 
+    # Add marker legend
+    legend = MarkerLegend()
+    with open(ASSETS_PATH / "templates" / "marker_legend.html", "r") as f:
+        legend._template = Template("\n".join(f.readlines()))
+    m.get_root().add_child(legend)
+
     # Add train count chart
     macro = TrainCountChart(df)
-    with open("./src/analysis/assets/train_count.html", "r") as f:
-        train_count_html = "\n".join(f.readlines())
-    macro._template = Template(train_count_html)
+    with open(ASSETS_PATH / "templates" / "train_count.html", "r") as f:
+        macro._template = Template("\n".join(f.readlines()))
     m.get_root().add_child(macro)
 
     # Save the map to a temporary file and open it with a web browser
