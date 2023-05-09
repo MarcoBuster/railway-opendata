@@ -72,7 +72,7 @@ $ python main.py ...
 
 - __Display an interactive map__ and open it in the web browser.
 
-    `$ python main.py analyze trajectories_map`
+    `$ python main.py analyze --stat trajectories_map`
 
 ## Fields
 
