@@ -48,9 +48,11 @@
                     return currentTime;
                 }
 
-                const data = {{ this.get_data() }};
-                const startTime = moment(data[0]['x']);
-                const endTime = moment(data[data.length - 1]['x']);
+                const train_count_data = {{ this.get_train_count_data() }};
+                const delays_data = {{ this.get_delays_data() }};
+
+                const startTime = moment(train_count_data[0]['x']);
+                const endTime = moment(train_count_data[train_count_data.length - 1]['x']);
 
                 const timeHighlighter = {
                     id: 'timeHighlighter',
@@ -73,10 +75,18 @@
                 let chart = new Chart(ctx, {
                     type: 'line',
                     data: {
-                        datasets: [{
-                            data: data,
-                            label: "Circulating train count",
-                        }],
+                        datasets: [
+                            {
+                                data: train_count_data,
+                                label: "Circulating train count",
+                                yAxisID: 'y',
+                            },
+                            {
+                                data: delays_data,
+                                label: "Mean delay",
+                                yAxisID: 'y1',
+                            }
+                        ],
                     },
                     options: {
                         scales: {
@@ -90,6 +100,20 @@
                                     isoWeekday: true,
                                 }
                             },
+                            y: {
+                                display: true,
+                                type: 'linear',
+                                position: 'left',
+                            },
+                            y1: {
+                                display: true,
+                                type: 'linear',
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: "Minutes"
+                                }
+                            }
                         },
                         elements: {
                             point: {
@@ -98,12 +122,8 @@
                             }
                         },
                         plugins: {
-                            title: {
-                                display: true,
-                                text: "Circulating train count",
-                            },
                             legend: {
-                                display: false,
+                                display: true,
                             }
                         },
                     },

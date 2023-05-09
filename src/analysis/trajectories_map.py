@@ -229,7 +229,7 @@ def train_stop_geojson(st: pd.DataFrame, train: pd.DataFrame) -> list[dict]:
     return ret
 
 
-class TrainCountChart(MacroElement):
+class StatsChart(MacroElement):
     """Helper class to compute and embed the train count chart."""
 
     def __init__(self, df: pd.DataFrame, *args, **kwargs):
@@ -239,34 +239,48 @@ class TrainCountChart(MacroElement):
             df (pd.DataFrame): the train stop data
         """
         super().__init__(*args, **kwargs)
-        self.df = df
 
-    def get_data(self) -> list[dict[str, str | int]]:
-        """Utility function used by the template to get the computed data,
-        in a JS-likable format.
-        """
-        trains = self.df.groupby("train_hash")
-        trains_n = pd.DataFrame(index=self.df.train_hash.unique())
-        trains_n["departure"] = trains.first()["departure_actual"].fillna(
+        # Prepare dataset
+        trains = df.groupby("train_hash")
+        self.data = pd.DataFrame(index=df.train_hash.unique())
+        self.data["departure"] = trains.first()["departure_actual"].fillna(
             trains.first()["departure_expected"]
         )
-        trains_n["arrival"] = trains.last()["arrival_actual"].fillna(
+        self.data["arrival"] = trains.last()["arrival_actual"].fillna(
             trains.first()["arrival_expected"]
         )
+        self.data["delay"] = trains.mean(numeric_only=True)["departure_delay"].fillna(
+            trains.mean(numeric_only=True)["arrival_delay"]
+        )
 
-        js_dataset: list[dict[str, str | int]] = []
-        for time in fill_time(trains_n.departure.min(), trains_n.arrival.max()):
-            js_dataset.append(
+    def get_train_count_data(self) -> list[dict[str, str | int]]:
+        """Return circulating train count in a JS-likable format."""
+        ret: list[dict[str, str | int]] = []
+        for time in fill_time(self.data.departure.min(), self.data.arrival.max()):
+            subset: pd.DataFrame = self.data.loc[
+                (time >= self.data.departure) & (time <= self.data.arrival)
+            ]
+            ret.append(
                 {
                     "x": time.isoformat(),
-                    "y": len(
-                        trains_n.loc[
-                            (time >= trains_n.departure) & (time <= trains_n.arrival)
-                        ]
-                    ),
+                    "y": len(subset),
                 }
             )
-        return js_dataset
+        return ret
+
+    def get_delays_data(self) -> list[dict[str, str | float]]:
+        ret: list[dict[str, str | float]] = []
+        for time in fill_time(self.data.departure.min(), self.data.arrival.max()):
+            subset: pd.DataFrame = self.data.loc[
+                (time >= self.data.departure) & (time <= self.data.arrival)
+            ]
+            ret.append(
+                {
+                    "x": time.isoformat(),
+                    "y": subset.delay.mean() if len(subset) > 20 else "NaN",
+                }
+            )
+        return ret
 
 
 class MarkerLegend(MacroElement):
@@ -325,8 +339,8 @@ def build_map(st: pd.DataFrame, df: pd.DataFrame) -> None:
     m.get_root().add_child(legend)
 
     # Add train count chart
-    macro = TrainCountChart(df)
-    with open(ASSETS_PATH / "templates" / "train_count.html", "r") as f:
+    macro = StatsChart(df)
+    with open(ASSETS_PATH / "templates" / "stats_chart.html", "r") as f:
         macro._template = Template("\n".join(f.readlines()))
     m.get_root().add_child(macro)
 
