@@ -26,6 +26,18 @@ The application is composed by multiple modules, accessible via CLI:
 
 The project is written in Python and it uses modern typing annotations, so **Python >= 3.11** is needed.
 
+### Using Docker (easy)
+
+A [Dockerfile](./Dockerfile) is available to avoid installing the dependencies manually.
+You can use the automatically updated [ghcr.io/marcobuster/railway-opendata:latest](https://github.com/MarcoBuster/railway-opendata/pkgs/container/railway-opendata)
+Docker image if you want the latest version available on the master branch.
+
+For instance, the following command will start the scraper on your machine.
+
+```bash
+$ docker run -v ./data:/app/data ghcr.io/marcobuster/railway-opendata:latest scraper
+```
+
 ### Using virtual envs
 
 > ⚠️ __WARNING__: this project currently uses the builtin `hash(...)` function to quickly index objects.
@@ -39,10 +51,6 @@ $ source ./venv/bin/activate
 $ pip install -r requirements.txt
 $ python main.py ...
 ```
-
-### Using Docker
-
-(TODO)
 
 ## Example usages
 
