@@ -90,6 +90,27 @@ def to_geojson(data: dict[str, Station], output_file: Path) -> None:
         f.write(str(collection))
 
 
+def register_args(parser: argparse.ArgumentParser):
+    parser.add_argument(
+        "pickle_file",
+        help=".pickle file to parse",
+        metavar="PICKLE_FILE",
+    )
+    parser.add_argument(
+        "-f",
+        default="csv",
+        choices=["csv", "geojson"],
+        help="output file format",
+        dest="format",
+    )
+    parser.add_argument(
+        "-o",
+        help="output file name",
+        metavar="OUTPUT_FILE",
+        dest="output_file",
+    )
+
+
 def main(args: argparse.Namespace):
     input_f, output_f, format = parse_input_format_output_args(args)
 

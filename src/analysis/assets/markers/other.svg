@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="124.31031mm"
+   height="107.71269mm"
+   viewBox="0 0 124.31031 107.71269"
+   version="1.1"
+   id="svg5"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs2">
+    <linearGradient
+       id="linearGradient3245">
+      <stop
+         style="stop-color:#e75700;stop-opacity:1;"
+         offset="0"
+         id="stop3243" />
+    </linearGradient>
+  </defs>
+  <g
+     id="layer1"
+     transform="translate(-39.118101,-77.76478)">
+    <path
+       style="display:inline;fill:#5d584f;fill-opacity:1;stroke-width:0.264999"
+       id="path530"
+       d="M 55.239954,138.78186 12.256981,93.884974 29.647337,34.212186 90.020666,19.436281 133.00364,64.333166 115.61328,124.00595 Z"
+       transform="rotate(13.7,-131.61541,224.58358)"
+       clip-path="none" />
+    <path
+       style="display:inline;fill:#71718e;fill-opacity:1;stroke-width:0.264999"
+       id="path16617"
+       d="M 55.239954,138.78186 12.256981,93.884974 29.647337,34.212186 90.020666,19.436281 133.00364,64.333166 115.61328,124.00595 Z"
+       transform="matrix(0.82346412,0.20073891,-0.20073891,0.82346412,57.345068,51.897917)"
+       clip-path="none" />
+    <text
+       xml:space="preserve"
+       style="font-weight:300;font-size:70.5556px;font-family:Noteworthy;-inkscape-font-specification:'Noteworthy Light';fill:#fefefe;fill-opacity:1;stroke-width:0.264999;image-rendering:auto"
+       x="101.73834"
+       y="156.66699"
+       id="CATEGORY"><tspan
+         id="tspan12525"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:70.5556px;font-family:'Open Sans';-inkscape-font-specification:'Open Sans';text-align:center;text-anchor:middle;fill:#fefefe;fill-opacity:1;stroke-width:0.265"
+         x="101.73834"
+         y="156.66699">?</tspan></text>
+  </g>
+</svg>

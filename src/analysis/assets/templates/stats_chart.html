@@ -1,0 +1,144 @@
+{% macro html(this, kwargs) %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src=" https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js "></script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1"></script>
+
+        <style>
+            .legend {
+                background: rgba(255, 255, 255, 0.8);
+            }
+            .trainchart-container {
+                position: absolute;
+                z-index: 9999;
+                top: 413px;
+                right: 10px;
+                width: 450px;
+                padding-right: 25px;
+                padding-left: 25px;
+                background: rgba(255, 255, 255, 0.8);
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="leaflet-control-container">
+            <div class="leaflet-right">
+                <div class="trainchart-container">
+                    <canvas id="trainChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            $(document).ready(() => {
+                // Hacky way to get the Leaflet map object
+                const var_name = $('.leaflet-container')[0].id;
+                const map = window[var_name];
+
+                function getCurrentTime() {
+                    const currentTimestamp = map.timeDimension._availableTimes[map.timeDimension._currentTimeIndex];
+                    let currentTime = moment.unix(currentTimestamp / 1000);
+                    return currentTime;
+                }
+
+                const train_count_data = {{ this.get_train_count_data() }};
+                const delays_data = {{ this.get_delays_data() }};
+
+                const startTime = moment(train_count_data[0]['x']);
+                const endTime = moment(train_count_data[train_count_data.length - 1]['x']);
+
+                const timeHighlighter = {
+                    id: 'timeHighlighter',
+                    beforeDatasetDraw(chart, args, pluginOptions) {
+                        const { ctx: _ctx, chartArea: { top, bottom, left, right, width, height }, scales: { x, y }} = chart;
+
+                        const currentTime = getCurrentTime();
+
+                        const startTimePixel = x.getPixelForValue(startTime.format());
+                        const endTimePixel = x.getPixelForValue(endTime.format());
+                        const currentTimePixel = ( startTimePixel * (endTime - currentTime) + endTimePixel * (currentTime - startTime) ) / ( endTime - startTime );
+
+                        _ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                        _ctx.fillRect(startTimePixel, top, currentTimePixel - startTimePixel, height);
+                        return true;
+                    }
+                }
+
+                const ctx = $('#trainChart');
+                let chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        datasets: [
+                            {
+                                data: train_count_data,
+                                label: "Circulating train count",
+                                yAxisID: 'y',
+                            },
+                            {
+                                data: delays_data,
+                                label: "Mean delay",
+                                yAxisID: 'y1',
+                            }
+                        ],
+                    },
+                    options: {
+                        scales: {
+                            xAxes: {
+                                type: 'time',
+                                time: {
+                                    tooltipFormat: 'YYYY-MM-DD HH:MM',
+                                    displayFormats: {
+                                        hour: "HH",
+                                    },
+                                    isoWeekday: true,
+                                }
+                            },
+                            y: {
+                                display: true,
+                                type: 'linear',
+                                position: 'left',
+                            },
+                            y1: {
+                                display: true,
+                                type: 'linear',
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: "Minutes"
+                                }
+                            }
+                        },
+                        elements: {
+                            point: {
+                                radius: 1,
+                                hitRadius: 70,
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                            }
+                        },
+                    },
+                    plugins: [
+                        timeHighlighter,
+                    ]
+                });
+
+                function updateChart() {
+                    chart.render();
+                }
+                setInterval(updateChart, 200);
+            });
+        </script>
+    </body>
+</html>
+
+{% endmacro %}

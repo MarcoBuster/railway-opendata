@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="124.31031mm"
+   height="107.71269mm"
+   viewBox="0 0 124.31031 107.71269"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="Marker.svg"
+   inkscape:export-filename="Tesi_git/src/analysis/assets/trenitalia_fb.svg"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.1095045"
+     inkscape:cx="134.74483"
+     inkscape:cy="225.32581"
+     inkscape:window-width="1920"
+     inkscape:window-height="1051"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2">
+    <linearGradient
+       id="linearGradient3245"
+       inkscape:swatch="solid">
+      <stop
+         style="stop-color:#e75700;stop-opacity:1;"
+         offset="0"
+         id="stop3243" />
+    </linearGradient>
+  </defs>
+  <g
+     inkscape:label="Livello 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-39.118101,-77.76478)">
+    <path
+       sodipodi:type="star"
+       style="display:inline;fill:#c0c0c0;fill-opacity:1;stroke-width:0.264999"
+       id="path530"
+       inkscape:flatsided="true"
+       sodipodi:sides="6"
+       sodipodi:cx="72.63031"
+       sodipodi:cy="79.10907"
+       sodipodi:r1="62.155178"
+       sodipodi:r2="53.827965"
+       sodipodi:arg1="1.854371"
+       sodipodi:arg2="2.3779698"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="M 55.239954,138.78186 12.256981,93.884974 29.647337,34.212186 90.020666,19.436281 133.00364,64.333166 115.61328,124.00595 Z"
+       transform="rotate(13.7,-131.61541,224.58358)"
+       clip-path="none"
+       inkscape:label="shape" />
+    <path
+       sodipodi:type="star"
+       style="display:inline;fill:#dc042b;fill-opacity:1;stroke-width:0.264999"
+       id="path16617"
+       inkscape:flatsided="true"
+       sodipodi:sides="6"
+       sodipodi:cx="72.63031"
+       sodipodi:cy="79.10907"
+       sodipodi:r1="62.155178"
+       sodipodi:r2="53.827965"
+       sodipodi:arg1="1.854371"
+       sodipodi:arg2="2.3779698"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="M 55.239954,138.78186 12.256981,93.884974 29.647337,34.212186 90.020666,19.436281 133.00364,64.333166 115.61328,124.00595 Z"
+       transform="matrix(0.82346412,0.20073891,-0.20073891,0.82346412,57.345068,51.897917)"
+       clip-path="none"
+       inkscape:label="shape_inner" />
+    <text
+       xml:space="preserve"
+       style="font-weight:300;font-size:70.5556px;font-family:Noteworthy;-inkscape-font-specification:'Noteworthy Light';fill:#fefefe;fill-opacity:1;stroke-width:0.264999;image-rendering:auto"
+       x="97.810928"
+       y="156.80479"
+       id="CATEGORY"
+       inkscape:highlight-color="#8680ee"
+       inkscape:label="category"><tspan
+         sodipodi:role="line"
+         id="tspan12525"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:70.5556px;font-family:'Open Sans';-inkscape-font-specification:'Open Sans';text-align:center;text-anchor:middle;fill:#fefefe;fill-opacity:1;stroke-width:0.265"
+         x="97.810928"
+         y="156.80479">FA</tspan></text>
+  </g>
+</svg>
