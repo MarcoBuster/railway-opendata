@@ -43,7 +43,11 @@ def get_git_revision_short_hash() -> str:
             .strip()
         )
     except subprocess.CalledProcessError:
-        return "unknown"
+        try:
+            with open("version.txt", "r") as f:
+                return f.read().strip()
+        except FileNotFoundError:
+            return "unknown"
 
 
 def load_dataset(file_path: pathlib.Path) -> dict[t.Any, t.Any]:
