@@ -56,6 +56,13 @@ analysis.register_args(
 
 
 def main():
+    print(
+        "railway-opendata, Copyright (C) 2023 Marco Aceti"
+        "\nrailway-opendata comes with ABSOLUTELY NO WARRANTY; "
+        "for details read the LICENSE."
+    )
+    print()
+
     hashseed: str | None = os.getenv("PYTHONHASHSEED")
     if not hashseed or hashseed != "0":
         logging.critical(
