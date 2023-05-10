@@ -64,9 +64,12 @@ def delay_boxplot(df: pd.DataFrame | DataFrameGroupBy) -> None:
         group_melt = pd.DataFrame()
 
         grouped: list = list(df)  # type: ignore
+
+        # Re-order fields
         if grouped_by == "weekday":
-            # Re-order fields
             grouped.sort(key=lambda t: WEEKDAYS[t[0]])
+        elif grouped_by == "client_code":
+            grouped.sort(key=lambda g: len(g[1]), reverse=True)
 
         for group in grouped:  # type: ignore
             melt = pd.melt(
