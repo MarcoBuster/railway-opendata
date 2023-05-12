@@ -72,15 +72,15 @@ $ python main.py ...
 
 - __Show delay stats__ of the last stop.
 
-    `$ python main.py analyze --group-by train_hash --agg-func last .../stations.csv .../trains.csv --stat delay_box_plot`
+    `$ python main.py analyze --group-by train_hash --agg-func last [..]/stations.csv [..]/trains.csv --stat delay_box_plot`
 
 - __Show daily train count__ grouped by railway companies.
 
-    `$ python main.py analyze --group-by client_code .../stations.csv .../trains.csv --stat day_train_count`
+    `$ python main.py analyze --group-by client_code [..]/stations.csv [..]/trains.csv --stat day_train_count`
 
 - __Display an interactive map__ and open it in the web browser.
 
-    `$ python main.py analyze --stat trajectories_map`
+    `$ python main.py analyze [..]/stations.csv [..]/trains.csv --stat trajectories_map`
 
 ## Fields
 
