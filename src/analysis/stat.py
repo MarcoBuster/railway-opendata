@@ -16,11 +16,14 @@
 
 
 import argparse
+import webbrowser
+from tempfile import NamedTemporaryFile
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
+from itables import to_html_datatable
 from pandas.core.groupby.generic import DataFrameGroupBy
 
 from src.const import RAILWAY_COMPANIES_PALETTE, WEEKDAYS
@@ -145,3 +148,43 @@ def day_train_count(df: pd.DataFrame | DataFrameGroupBy) -> None:
 
     ax.set(xlabel="Day", ylabel="Train count")
     plt.show()
+
+
+def detect_lines(df: pd.DataFrame, st: pd.DataFrame) -> None:
+    """Show a interactive table with the detected (by tag_lines) railway lines"""
+
+    st_names: pd.DataFrame = st.drop(
+        ["region", "latitude", "longitude", "short_name"],
+        axis=1,
+    )
+    lines: pd.DataFrame = (
+        (
+            df.join(st_names, on="origin")
+            .rename({"long_name": "station_a"}, axis=1)
+            .join(st_names, on="destination")
+            .rename({"long_name": "station_b"}, axis=1)
+        )[["line", "station_a", "station_b", "train_hash", "stop_number"]]
+        .groupby("line")
+        .agg(
+            {
+                "station_a": "first",
+                "station_b": "first",
+                "train_hash": "nunique",
+                "stop_number": lambda g: max(g) + 1,
+            }
+        )
+        .rename({"train_hash": "train_count"}, axis=1)
+        .sort_values(by="train_count", ascending=False)
+        .reset_index()
+    )
+    html: str = to_html_datatable(
+        lines,
+        caption="Detected railway lines",
+        lengthMenu=[20, 50, 100],
+        order=[3, "desc"],
+        maxBytes=2**17,
+    )
+
+    outfile = NamedTemporaryFile(delete=False)
+    outfile.write(html.encode("utf-8"))
+    webbrowser.open(outfile.name)

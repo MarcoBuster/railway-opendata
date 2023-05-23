@@ -74,6 +74,7 @@ def register_args(parser: argparse.ArgumentParser):
             "delay_boxplot",
             "day_train_count",
             "trajectories_map",
+            "detect_lines",
         ),
         default="describe",
     )
@@ -130,7 +131,7 @@ def main(args: argparse.Namespace):
     logging.info(f"Loaded {len(df)} data points ({original_length} before filtering)")
 
     # Tag lines
-    tag_lines(df, stations)
+    df = tag_lines(df, stations)
 
     # Prepare graphics
     stat.prepare_mpl(df, args)
@@ -163,5 +164,8 @@ def main(args: argparse.Namespace):
     elif args.stat == "trajectories_map":
         if not isinstance(df, pd.DataFrame):
             raise ValueError("can't use trajectories_map with unaggregated data")
-
         trajectories_map.build_map(stations, df)
+    elif args.stat == "detect_lines":
+        if not isinstance(df, pd.DataFrame):
+            raise ValueError("can't use detect_lines with unaggregated data")
+        stat.detect_lines(df, stations)

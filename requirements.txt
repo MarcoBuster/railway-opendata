@@ -14,3 +14,4 @@ joblib==1.2.0
 timple==0.1.5
 colour==0.1.5
 branca==0.6.0
+itables==1.5.2
