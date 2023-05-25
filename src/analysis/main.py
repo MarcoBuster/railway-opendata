@@ -27,7 +27,7 @@ from joblib import Parallel, delayed
 from pandas.core.groupby.generic import DataFrameGroupBy
 
 from src.analysis import groupby, stat, trajectories_map
-from src.analysis.filter import date_filter, railway_company_filter
+from src.analysis.filter import *
 from src.analysis.load_data import read_station_csv, read_train_csv, tag_lines
 
 
@@ -44,6 +44,15 @@ def register_args(parser: argparse.ArgumentParser):
         "--railway-companies",
         help="comma-separated list of railway companies to include. If not set, all companies will be included.",
         dest="client_codes",
+    )
+    parser.add_argument(
+        "--railway-lines",
+        help=(
+            "comma-separated list of railway lines to include. "
+            "If not set, all lines will be include. "
+            "Use --stat detect_lines to see available lines."
+        ),
+        dest="railway_lines",
     )
     parser.add_argument(
         "--group-by",
@@ -110,6 +119,7 @@ def main(args: argparse.Namespace):
             raise argparse.ArgumentTypeError("invalid end_date")
 
     railway_companies: str | None = args.client_codes
+    railway_lines: str | None = args.railway_lines
 
     # Load dataset
     df: pd.DataFrame | DataFrameGroupBy = pd.DataFrame()
@@ -125,13 +135,14 @@ def main(args: argparse.Namespace):
     stations: pd.DataFrame = read_station_csv(args.station_csv)
     original_length: int = len(df)
 
+    # Tag lines
+    df = tag_lines(df, stations)
+
     # Apply filters
     df = date_filter(df, start_date, end_date)
     df = railway_company_filter(df, railway_companies)
+    df = railway_lines_filter(df, railway_lines)
     logging.info(f"Loaded {len(df)} data points ({original_length} before filtering)")
-
-    # Tag lines
-    df = tag_lines(df, stations)
 
     # Prepare graphics
     stat.prepare_mpl(df, args)
