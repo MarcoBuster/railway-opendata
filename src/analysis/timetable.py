@@ -94,7 +94,28 @@ def timetable_graph(trains: pd.DataFrame, st: pd.DataFrame, collapse: bool = Tru
     for _, train in trains_m.groupby("train_hash"):
         timetable_train(train, False, collapse)
 
-    plt.title(trains.iloc[0].line)
+    # get station names for proper title
+    st_names: pd.DataFrame = st.drop(
+        ["region", "latitude", "longitude", "short_name"],
+        axis=1,
+    )
+    line: pd.DataFrame = (
+        trains.join(st_names, on="origin")
+        .rename({"long_name": "station_a"}, axis=1)
+        .join(st_names, on="destination")
+        .rename({"long_name": "station_b"}, axis=1)
+    )[["station_a", "station_b", "stop_number"]].agg(
+        {
+            "station_a": lambda s: s.iloc[0],
+            "station_b": lambda s: s.iloc[0],
+            "stop_number": lambda n: max(n) + 1,
+        }
+    )
+
+    plt.title(f"{line.station_a} ↔ {line.station_b} [{line.stop_number} stops]")
+    start_day, end_day = trains.day.min().date(), trains.day.max().date()
+    plt.title(f"{start_day} => {end_day}", loc="left")
+
     plt.ylabel("Station")
     plt.xlabel("Time")
 
