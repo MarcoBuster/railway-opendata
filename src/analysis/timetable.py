@@ -32,7 +32,7 @@ def same_line(df: pd.DataFrame) -> bool:
     Return:
         bool: True if the trains are all on the same line, False otherwise
     """
-    return df.nunique().line == 1
+    return df.line.nunique() <= 1
 
 
 def timetable_train(train: pd.DataFrame, expected: bool = False, collapse: bool = True):
