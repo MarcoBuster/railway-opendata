@@ -61,3 +61,22 @@ def railway_company_filter(
         s.strip().lower() for s in railway_companies.strip().split(",") if len(s) > 0
     ]
     return df.loc[df.client_code.str.lower().isin(code_list)]
+
+
+def railway_lines_filter(df: pd.DataFrame, lines: str | None):
+    """Filter dataframe by the railway line.
+
+    Args:
+        df (pd.DataFrame): the considered dataframe
+        line (str | None): a comma-separated list of railway lines
+
+    Returns:
+        pd.DataFrame: the filtered dataframe
+    """
+    if not lines or len(lines) < 1:
+        return df
+
+    line_list: list[str] = [
+        l.strip().upper() for l in lines.strip().split(",") if len(l) > 0
+    ]
+    return df.loc[df.line.isin(line_list)]

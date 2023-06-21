@@ -82,6 +82,10 @@ $ python main.py ...
 
     `$ python main.py analyze [..]/stations.csv [..]/trains.csv --stat trajectories_map`
 
+- __Display a timetable graph__.
+
+    `$ python main.py analyze [..]/stations.csv [..]/trains.csv --stat timetable --timetable-collapse`
+
 ## Fields
 
 ### Stations CSV

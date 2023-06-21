@@ -26,8 +26,8 @@ from dateparser import parse
 from joblib import Parallel, delayed
 from pandas.core.groupby.generic import DataFrameGroupBy
 
-from src.analysis import groupby, stat, trajectories_map
-from src.analysis.filter import date_filter, railway_company_filter
+from src.analysis import groupby, stat, timetable, trajectories_map
+from src.analysis.filter import *
 from src.analysis.load_data import read_station_csv, read_train_csv, tag_lines
 
 
@@ -44,6 +44,15 @@ def register_args(parser: argparse.ArgumentParser):
         "--railway-companies",
         help="comma-separated list of railway companies to include. If not set, all companies will be included.",
         dest="client_codes",
+    )
+    parser.add_argument(
+        "--railway-lines",
+        help=(
+            "comma-separated list of railway lines to include. "
+            "If not set, all lines will be include. "
+            "Use --stat detect_lines to see available lines."
+        ),
+        dest="railway_lines",
     )
     parser.add_argument(
         "--group-by",
@@ -75,8 +84,15 @@ def register_args(parser: argparse.ArgumentParser):
             "day_train_count",
             "trajectories_map",
             "detect_lines",
+            "timetable",
         ),
         default="describe",
+    )
+    parser.add_argument(
+        "--timetable-collapse",
+        help="collapse the train stop times in the graph, relative to the first (only for 'timetable' stat). Defaults to False.",
+        action=argparse.BooleanOptionalAction,
+        default=False,
     )
     parser.add_argument(
         "station_csv",
@@ -110,6 +126,7 @@ def main(args: argparse.Namespace):
             raise argparse.ArgumentTypeError("invalid end_date")
 
     railway_companies: str | None = args.client_codes
+    railway_lines: str | None = args.railway_lines
 
     # Load dataset
     df: pd.DataFrame | DataFrameGroupBy = pd.DataFrame()
@@ -125,13 +142,14 @@ def main(args: argparse.Namespace):
     stations: pd.DataFrame = read_station_csv(args.station_csv)
     original_length: int = len(df)
 
+    # Tag lines
+    df = tag_lines(df, stations)
+
     # Apply filters
     df = date_filter(df, start_date, end_date)
     df = railway_company_filter(df, railway_companies)
+    df = railway_lines_filter(df, railway_lines)
     logging.info(f"Loaded {len(df)} data points ({original_length} before filtering)")
-
-    # Tag lines
-    df = tag_lines(df, stations)
 
     # Prepare graphics
     stat.prepare_mpl(df, args)
@@ -161,11 +179,23 @@ def main(args: argparse.Namespace):
         stat.delay_boxplot(df)
     elif args.stat == "day_train_count":
         stat.day_train_count(df)
-    elif args.stat == "trajectories_map":
-        if not isinstance(df, pd.DataFrame):
-            raise ValueError("can't use trajectories_map with unaggregated data")
+
+    if args.stat in [
+        "trajectories_map",
+        "detect_lines",
+        "timetable",
+    ] and not isinstance(df, pd.DataFrame):
+        raise ValueError(f"can't use {args.stat} with unaggregated data")
+
+    assert isinstance(df, pd.DataFrame)
+
+    if args.stat == "trajectories_map":
         trajectories_map.build_map(stations, df)
     elif args.stat == "detect_lines":
-        if not isinstance(df, pd.DataFrame):
-            raise ValueError("can't use detect_lines with unaggregated data")
         stat.detect_lines(df, stations)
+    elif args.stat == "timetable":
+        if not timetable.same_line(df):
+            raise ValueError(
+                f"can't use timetable if --railway-lines filter is not used"
+            )
+        timetable.timetable_graph(df, stations, args.timetable_collapse)
