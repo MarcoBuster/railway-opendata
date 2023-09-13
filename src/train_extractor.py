@@ -46,8 +46,8 @@ def load_file(file: Path) -> dict[int, Train]:
     with open(file, "rb") as f:
         data: dict[int, Train] = pickle.load(f)
 
-    # Fix departure and arrival timestamps
     def _fix_datetime(train: Train, dt: datetime | None) -> datetime | None:
+        """Fix departure and arrival timestamps"""
         if isinstance(dt, datetime) and dt.year < 2000:
             dep_date: date = train.departing_date
             dt = dt.replace(
@@ -58,14 +58,32 @@ def load_file(file: Path) -> dict[int, Train]:
             )
         return dt
 
+    def _detect_crazy_time_difference(train: Train, time: TrainStopTime):
+        """Ignore trains if the difference between expected and actual
+        times in a stop is greater than one day.
+
+        Example:
+            REG Train 17907 operated by TPER. S05311 stop on 2023-03-30.
+            arrival_expected             2025-08-30 17:33:00+02:00
+            arrival_actual               2023-03-30 17:34:30+02:00
+            arrival_delay                                  -1438.5
+        """
+        if not time.actual or not time.expected:
+            return
+
+        if abs((time.actual - time.expected).days) > 1:
+            train._phantom = True
+
     for train_h in data:
         train: Train = data[train_h]
 
         for stop in train.stops if isinstance(train.stops, list) else []:
             if isinstance(stop.arrival, TrainStopTime):
+                _detect_crazy_time_difference(train, stop.arrival)
                 stop.arrival.actual = _fix_datetime(train, stop.arrival.actual)
                 stop.arrival.expected = _fix_datetime(train, stop.arrival.expected)  # type: ignore
             if isinstance(stop.departure, TrainStopTime):
+                _detect_crazy_time_difference(train, stop.departure)
                 stop.departure.actual = _fix_datetime(train, stop.departure.actual)
                 stop.departure.expected = _fix_datetime(train, stop.departure.expected)  # type: ignore
 
