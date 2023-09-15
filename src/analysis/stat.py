@@ -31,7 +31,9 @@ from src.const import RAILWAY_COMPANIES_PALETTE, WEEKDAYS
 
 def describe(df: pd.DataFrame | DataFrameGroupBy) -> None:
     """Call pandas.DataFrame.describe()"""
-    print(df.describe())
+    print(
+        df[["stop_number", "arrival_delay", "departure_delay", "crowding"]].describe()
+    )
 
 
 def prepare_mpl(df: pd.DataFrame, args: argparse.Namespace) -> None:
@@ -106,8 +108,6 @@ def delay_boxplot(df: pd.DataFrame | DataFrameGroupBy) -> None:
         )
         ax.set(xlabel="Variable", ylabel="Delay (minutes)")
 
-    plt.show()
-
 
 def day_train_count(df: pd.DataFrame | DataFrameGroupBy) -> None:
     """Show a seaborn barplot of unique train count, grouped by day"""
@@ -147,7 +147,6 @@ def day_train_count(df: pd.DataFrame | DataFrameGroupBy) -> None:
         )
 
     ax.set(xlabel="Day", ylabel="Train count")
-    plt.show()
 
 
 def detect_lines(df: pd.DataFrame, st: pd.DataFrame) -> None:

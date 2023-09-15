@@ -21,6 +21,7 @@ import pathlib
 import warnings
 from datetime import datetime
 
+import matplotlib.pyplot as plt
 import pandas as pd
 from dateparser import parse
 from joblib import Parallel, delayed
@@ -89,8 +90,14 @@ def register_args(parser: argparse.ArgumentParser):
         default="describe",
     )
     parser.add_argument(
+        "--save-fig",
+        metavar="FILENAME",
+        help="save the output figure to a file if using delay_boxplot or day_train_count stats. If not specified, use pyplot.show()",
+        default=None,
+    )
+    parser.add_argument(
         "--timetable-collapse",
-        help="collapse the train stop times in the graph, relative to the first (only for 'timetable' stat). Defaults to False.",
+        help="collapse the train stop times in the graph, relative to the first (only for 'timetable' stat). Defaults to False",
         action=argparse.BooleanOptionalAction,
         default=False,
     )
@@ -173,13 +180,6 @@ def main(args: argparse.Namespace):
         elif args.agg_func == "none":
             df = df_grouped
 
-    if args.stat == "describe":
-        stat.describe(df)
-    elif args.stat == "delay_boxplot":
-        stat.delay_boxplot(df)
-    elif args.stat == "day_train_count":
-        stat.day_train_count(df)
-
     if args.stat in [
         "trajectories_map",
         "detect_lines",
@@ -187,9 +187,13 @@ def main(args: argparse.Namespace):
     ] and not isinstance(df, pd.DataFrame):
         raise ValueError(f"can't use {args.stat} with unaggregated data")
 
-    assert isinstance(df, pd.DataFrame)
-
-    if args.stat == "trajectories_map":
+    if args.stat == "describe":
+        stat.describe(df)
+    elif args.stat == "delay_boxplot":
+        stat.delay_boxplot(df)
+    elif args.stat == "day_train_count":
+        stat.day_train_count(df)
+    elif args.stat == "trajectories_map":
         trajectories_map.build_map(stations, df)
     elif args.stat == "detect_lines":
         stat.detect_lines(df, stations)
@@ -199,3 +203,10 @@ def main(args: argparse.Namespace):
                 f"can't use timetable if --railway-lines filter is not used"
             )
         timetable.timetable_graph(df, stations, args.timetable_collapse)
+
+    # Visualizations only
+    if args.stat in ["delay_boxplot", "day_train_count", "timetable"]:
+        if args.save_fig:
+            plt.savefig(args.save_fig)
+        else:
+            plt.show()
