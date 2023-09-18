@@ -184,6 +184,6 @@ def detect_lines(df: pd.DataFrame, st: pd.DataFrame) -> None:
         maxBytes=2**17,
     )
 
-    outfile = NamedTemporaryFile(delete=False)
+    outfile = NamedTemporaryFile(delete=False, suffix=".html")
     outfile.write(html.encode("utf-8"))
     webbrowser.open(outfile.name)

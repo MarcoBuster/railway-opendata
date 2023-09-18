@@ -362,7 +362,7 @@ def build_map(st: pd.DataFrame, df: pd.DataFrame) -> None:
     m.get_root().add_child(macro)
 
     # Save the map to a temporary file and open it with a web browser
-    outfile = NamedTemporaryFile(delete=False)
+    outfile = NamedTemporaryFile(delete=False, suffix=".html")
     m.save(outfile.file)
 
     webbrowser.open(outfile.name)
