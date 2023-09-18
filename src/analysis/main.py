@@ -206,6 +206,7 @@ def main(args: argparse.Namespace):
 
     # Visualizations only
     if args.stat in ["delay_boxplot", "day_train_count", "timetable"]:
+        plt.tight_layout()
         if args.save_fig:
             plt.savefig(args.save_fig)
         else:

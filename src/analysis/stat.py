@@ -147,6 +147,7 @@ def day_train_count(df: pd.DataFrame | DataFrameGroupBy) -> None:
         )
 
     ax.set(xlabel="Day", ylabel="Train count")
+    plt.xticks(rotation=45)
 
 
 def detect_lines(df: pd.DataFrame, st: pd.DataFrame) -> None:
