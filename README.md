@@ -1,4 +1,4 @@
-# railway-opendata
+# RailScrape (railway-opendata)
 
 In Italy there are no available official **Open Data** about the _performance_ (delays, cancellations, ...) of the **italian public rail transport**.
 This project offers a tool which allows anyone to gather it and run some stats and visualizations.
