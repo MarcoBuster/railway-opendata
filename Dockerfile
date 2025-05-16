@@ -1,4 +1,4 @@
-FROM python:3.11
+FROM python:3.13
 
 LABEL org.opencontainers.image.source=https://github.com/MarcoBuster/railway-opendata
 LABEL org.opencontainers.image.description="Italian railway opendata scraper and analyzer"
